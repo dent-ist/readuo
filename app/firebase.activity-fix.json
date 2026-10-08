@@ -1,0 +1,13 @@
+{
+  "firestore": {
+    "rules": "test/activity-rules-deploy.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "artifact": "C:\\dev\\ai\\readuo\\design\\readuo-first-release-preview.html",
+  "method": "Codex in-app browser, sandboxed wrapper, read-only localhost",
+  "screenCount": 117,
+  "groups": 9,
+  "viewports": [
+    { "browser": [367, 1000], "phoneWidth": 320 },
+    { "browser": [437, 1000], "phoneWidth": 390 },
+    { "browser": [784, 1000], "catalogWidth": 736, "phoneWidth": 390 }
+  ],
+  "renderedStateViewportCombinations": 351,
+  "layoutFailures": 0,
+  "checks": {
+    "documentOverflow": 0,
+    "phoneOverflow": 0,
+    "outsidePhone": 0,
+    "clippedText": 0,
+    "undersizedActionableControls": 0,
+    "duplicateIds": 0,
+    "nonCircularAvatars": 0
+  },
+  "manualScreens": ["login", "friends", "scanner", "manual-possible-duplicate", "private-confirm", "delete-account", "content-filtered"],
+  "liveInteractions": [
+    "login starts first",
+    "Apple selection reaches setup",
+    "empty display name is blocked with inline error",
+    "Friends search filters to Tom Bergen",
+    "selected friend identity persists to profile",
+    "selected discovery book and owner persist to detail",
+    "discovery save creates one Want-to-read entry on one shelf",
+    "equivalent ISBN-10 normalizes to ISBN-13 and shows the existing-entry guard",
+    "a different ISBN for the same title saves as a separate entry",
+    "a no-ISBN title/author match requires review before a separate manual entry is created",
+    "final browser console error count is zero"
+  ],
+  "notes": [
+    "Direct file URL was blocked by browser security policy; a scoped read-only localhost server was used.",
+    "No production service, account, permission, or user data was exercised."
+  ]
+}

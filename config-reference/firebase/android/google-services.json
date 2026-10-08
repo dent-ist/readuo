@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "881895077363",
+    "firebase_url": "https://readuo-b2f24-default-rtdb.firebaseio.com",
+    "project_id": "readuo-b2f24",
+    "storage_bucket": "readuo-b2f24.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:881895077363:android:29d58bb2b3504cf990ce86",
+        "android_client_info": {
+          "package_name": "com.zipdosa.readuo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "881895077363-p5d1bcpav8dja2tqc4940k0jo71indvp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zipdosa.readuo",
+            "certificate_hash": "daba8cd71b66f5e7c697e67c7653e45e4177b289"
+          }
+        },
+        {
+          "client_id": "881895077363-vli1kmpkd70lgkaloakatstvtlmffdsf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnOt5TtOYApkh7PHLgp7IzB2MAOF4Bjqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "881895077363-vli1kmpkd70lgkaloakatstvtlmffdsf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

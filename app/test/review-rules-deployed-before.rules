@@ -1,0 +1,2535 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function activeAccount() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/activeAccounts/$(request.auth.uid));
+    }
+
+    match /activeAccounts/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /accountDeletions/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    function isModerator() {
+      return activeAccount() && request.auth.token.get('moderator', false) == true;
+    }
+
+    function contentAllowed(text) {
+      return !text.lower().matches('[\\s\\S]*(?:^|[^a-z0-9_])(?:i[ \\t\\r\\n]+will[ \\t\\r\\n]+kill[ \\t\\r\\n]+you|kill[ \\t\\r\\n]+yourself)(?:$|[^a-z0-9_])[\\s\\S]*');
+    }
+
+    function moderationUnlocked(lockId) {
+      return !exists(/databases/$(database)/documents/moderationLocks/$(lockId));
+    }
+
+    match /users/{userId}/preferences/notifications {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if activeAccount() && request.auth != null && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['friendRequest', 'requestAccepted', 'like', 'comment'])
+        && request.resource.data.get('friendRequest', true) is bool
+        && request.resource.data.get('requestAccepted', true) is bool
+        && request.resource.data.get('like', true) is bool
+        && request.resource.data.get('comment', true) is bool;
+    }
+
+    match /users/{userId}/notificationTokens/{installationId} {
+      allow read, delete: if activeAccount() && request.auth != null && request.auth.uid == userId;
+      allow create, update: if activeAccount() && request.auth != null && request.auth.uid == userId
+        && installationId.matches('^[A-Za-z0-9_-]{1,128}$')
+        && request.resource.data.keys().hasOnly(['token', 'platform', 'updatedAt'])
+        && request.resource.data.token is string
+        && request.resource.data.token.size() > 0
+        && request.resource.data.token.size() <= 4096
+        && request.resource.data.platform == 'android'
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    match /users/{userId}/notifications/{notificationId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow update: if activeAccount() && request.auth != null && request.auth.uid == userId
+        && resource.data.recipientId == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt'])
+        && request.resource.data.readAt == request.time;
+    }
+
+    match /supportRequests/{requestId} {
+      allow read: if request.auth != null
+        && (resource.data.ownerId == request.auth.uid || isModerator());
+      allow get: if request.auth != null && requestId.matches('^' + request.auth.uid + '--[a-f0-9]{32}$');
+      allow create: if activeAccount() && request.auth != null
+        && requestId.matches('^' + request.auth.uid + '--[a-f0-9]{32}$')
+        && request.resource.data.keys().hasOnly(['ownerId', 'subject', 'message', 'status', 'createdAt'])
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.subject is string
+        && request.resource.data.subject.size() > 0 && request.resource.data.subject.size() <= 120
+        && request.resource.data.subject.matches('.*\\S.*')
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0 && request.resource.data.message.size() <= 5000
+        && request.resource.data.message.matches('[\\s\\S]*\\S[\\s\\S]*')
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+      allow update: if activeAccount() && isModerator()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'resolvedAt', 'resolvedBy', 'resolutionNote'])
+        && request.resource.data.status == 'resolved'
+        && request.resource.data.resolvedAt == request.time
+        && request.resource.data.resolvedBy == request.auth.uid
+        && request.resource.data.resolutionNote is string
+        && request.resource.data.resolutionNote.size() <= 2000;
+    }
+
+    function readerBlock(blockerId, blockedId) {
+      return /databases/$(database)/documents/blocks/$(blockerId)/blocked/$(blockedId);
+    }
+
+    function readersBlocked(firstId, secondId) {
+      return exists(readerBlock(firstId, secondId))
+             || exists(readerBlock(secondId, firstId));
+    }
+
+    function readersAreFriends(firstId, secondId) {
+      return exists(/databases/$(database)/documents/friendships/$(firstId + '--' + secondId))
+             || exists(/databases/$(database)/documents/friendships/$(secondId + '--' + firstId));
+    }
+
+    function canReadSharedShelf(data) {
+      return request.auth != null
+             && data.keys().hasAll(['ownerId', 'visibility'])
+             && data.ownerId is string
+             && data.visibility in ['friends', 'private', 'public']
+             && request.auth.uid != data.ownerId
+             && !readersBlocked(request.auth.uid, data.ownerId)
+             && (
+               data.visibility == 'public'
+               || (data.visibility == 'friends'
+                   && readersAreFriends(request.auth.uid, data.ownerId))
+             );
+    }
+
+    function validPairId(pair, firstId, secondId) {
+      return firstId != secondId
+             && firstId.matches('^[A-Za-z0-9_-]{1,128}$')
+             && secondId.matches('^[A-Za-z0-9_-]{1,128}$')
+             && (pair == firstId + '--' + secondId
+                 || pair == secondId + '--' + firstId);
+    }
+
+    function pairIncludesUser(pair, userId) {
+      return userId.matches('^[A-Za-z0-9_-]{1,128}$')
+             && (pair.matches('^' + userId + '--.+$')
+                 || pair.matches('^.+--' + userId + '$'));
+    }
+
+    function validCircleAttachment(data, authorId) {
+      let hasNoAttachment = data.attachedBookOwnerId == null
+                            && data.attachedShelfId == null
+                            && data.attachedBookId == null
+                            && data.attachedTitle == null
+                            && data.attachedAuthor == null
+                            && data.attachedCoverUrl == null;
+      let bookPath = /databases/$(database)/documents/shelves/$(data.attachedShelfId)/books/$(data.attachedBookId);
+      return hasNoAttachment
+             || (
+               data.attachedBookOwnerId == authorId
+               && data.attachedShelfId is string
+               && data.attachedShelfId.size() > 0
+               && data.attachedBookId is string
+               && data.attachedBookId.size() > 0
+               && data.attachedTitle is string
+               && data.attachedTitle.size() > 0
+               && data.attachedTitle.size() <= 160
+               && data.attachedAuthor is string
+               && data.attachedAuthor.size() > 0
+               && data.attachedAuthor.size() <= 120
+               && (
+                 data.attachedCoverUrl == null
+                 || (data.attachedCoverUrl is string
+                     && data.attachedCoverUrl.size() <= 500)
+               )
+               && exists(bookPath)
+               && get(bookPath).data.ownerId == authorId
+               && get(bookPath).data.shelfId == data.attachedShelfId
+               && get(bookPath).data.title == data.attachedTitle
+               && get(bookPath).data.author == data.attachedAuthor
+               && get(bookPath).data.coverUrl == data.attachedCoverUrl
+             );
+    }
+
+    function validCirclePhoto(photoPath, authorId, postId) {
+      return photoPath == null
+             || (
+               photoPath is string
+               && photoPath.matches(
+                    '^circlePosts/' + authorId + '/' + postId
+                    + '/photo-[0-9]+$'
+                  )
+             );
+    }
+
+    function oppositePairAbsent(collectionName, pair, firstId, secondId) {
+      return (pair == firstId + '--' + secondId
+              && !exists(/databases/$(database)/documents/$(collectionName)/$(secondId + '--' + firstId)))
+             || (pair == secondId + '--' + firstId
+                 && !exists(/databases/$(database)/documents/$(collectionName)/$(firstId + '--' + secondId)));
+    }
+
+    // ── Readuo reader profiles and invite-code reservation ──────────────
+    // Profiles contain display-only identity. Authentication email and
+    // provider credentials are never copied here. Exact profile gets are
+    // signed-in-only and list enumeration is denied.
+    match /readerProfiles/{userId} {
+      function validPhoto(photoUrl) {
+        return photoUrl == null
+               || (photoUrl is string
+                   && photoUrl.size() <= 500
+                   && photoUrl.matches('^https://.*$'));
+      }
+
+      function validProfile(data) {
+        return data.keys().hasOnly([
+                 'ownerId', 'displayName', 'photoUrl', 'inviteCode',
+                 'createdAt', 'updatedAt', 'photoStoragePath'
+               ])
+               && data.ownerId == userId
+               && data.displayName is string
+               && data.displayName.size() > 0
+               && data.displayName.size() <= 80
+               && data.displayName.matches('.*\\S.*')
+               && validPhoto(data.photoUrl)
+               && (data.get('photoStoragePath', null) == null
+                   || data.photoStoragePath.matches('^profilePhotos/' + userId + '/[A-Za-z0-9]+$'))
+               && data.inviteCode is string
+               && data.inviteCode.matches('^[A-Z0-9]{6}$')
+               && data.createdAt is timestamp
+               && data.updatedAt is timestamp;
+      }
+
+      allow get: if request.auth != null
+                 && (request.auth.uid == userId
+                     || !readersBlocked(request.auth.uid, userId));
+      allow list: if false;
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.updatedAt == request.time
+                    && validProfile(request.resource.data)
+                    && existsAfter(/databases/$(database)/documents/inviteCodes/$(request.resource.data.inviteCode))
+                    && getAfter(/databases/$(database)/documents/inviteCodes/$(request.resource.data.inviteCode)).data.ownerId == userId;
+      allow update: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && !exists(/databases/$(database)/documents/moderatedProfiles/$(userId))
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['displayName', 'photoUrl', 'photoStoragePath', 'updatedAt'])
+                    && request.resource.data.ownerId == resource.data.ownerId
+                    && request.resource.data.inviteCode == resource.data.inviteCode
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.updatedAt == request.time
+                    && validProfile(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /inviteCodes/{code} {
+      function validCode(data) {
+        return data.keys().hasOnly(['ownerId', 'code', 'createdAt'])
+               && data.ownerId is string
+               && data.code == code
+               && code.matches('^[A-Z0-9]{6}$')
+               && data.createdAt == request.time;
+      }
+
+      allow get: if request.auth != null
+                 && (!exists(/databases/$(database)/documents/inviteCodes/$(code))
+                     || !readersBlocked(request.auth.uid, resource.data.ownerId));
+      allow list: if false;
+      allow create: if activeAccount() && request.auth != null
+                    && request.resource.data.ownerId == request.auth.uid
+                    && validCode(request.resource.data)
+                    && existsAfter(/databases/$(database)/documents/readerProfiles/$(request.auth.uid))
+                    && getAfter(/databases/$(database)/documents/readerProfiles/$(request.auth.uid)).data.inviteCode == code;
+      allow update, delete: if false;
+    }
+
+    // ── Pending requests and accepted friendships ───────────────────────
+    // One deterministic pair document prevents opposite-direction races.
+    // The invite code is validated server-side and acceptance must atomically
+    // remove the pending request before friendship creation.
+    match /friendRequests/{pair} {
+      function validRequest(data) {
+        return data.keys().hasOnly([
+                 'pairId', 'requesterId', 'recipientId', 'inviteCode',
+                 'createdAt'
+               ])
+               && data.pairId == pair
+               && validPairId(pair, data.requesterId, data.recipientId)
+               && data.inviteCode is string
+               && data.inviteCode.matches('^[A-Z0-9]{6}$')
+               && data.createdAt == request.time;
+      }
+
+      allow get: if request.auth != null
+                 && pairIncludesUser(pair, request.auth.uid)
+                 && (!exists(/databases/$(database)/documents/friendRequests/$(pair))
+                     || request.auth.uid == resource.data.requesterId
+                     || request.auth.uid == resource.data.recipientId);
+      allow list: if request.auth != null
+                  && (request.auth.uid == resource.data.requesterId
+                      || request.auth.uid == resource.data.recipientId);
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == request.resource.data.requesterId
+                    && exists(/databases/$(database)/documents/activeAccounts/$(request.resource.data.recipientId))
+                    && validRequest(request.resource.data)
+                    && !readersBlocked(
+                         request.resource.data.requesterId,
+                         request.resource.data.recipientId
+                       )
+                    && exists(/databases/$(database)/documents/inviteCodes/$(request.resource.data.inviteCode))
+                    && get(/databases/$(database)/documents/inviteCodes/$(request.resource.data.inviteCode)).data.ownerId
+                         == request.resource.data.recipientId
+                    && oppositePairAbsent(
+                         'friendRequests',
+                         pair,
+                         request.resource.data.requesterId,
+                         request.resource.data.recipientId
+                       )
+                    && oppositePairAbsent(
+                         'friendships',
+                         pair,
+                         request.resource.data.requesterId,
+                         request.resource.data.recipientId
+                       )
+                    && !exists(/databases/$(database)/documents/friendships/$(pair));
+      allow delete: if activeAccount() && request.auth != null
+                    && (request.auth.uid == resource.data.requesterId
+                        || request.auth.uid == resource.data.recipientId);
+      allow update: if false;
+    }
+
+    match /friendships/{pair} {
+      function validFriendship(data, pending) {
+        return data.keys().hasOnly(['pairId', 'memberIds', 'createdAt'])
+               && data.pairId == pair
+               && data.memberIds is list
+               && data.memberIds.size() == 2
+               && data.memberIds.hasAll([
+                    pending.data.requesterId,
+                    pending.data.recipientId
+                  ])
+               && data.memberIds[0] == pending.data.requesterId
+               && data.memberIds[1] == pending.data.recipientId
+               && validPairId(
+                    pair,
+                    pending.data.requesterId,
+                    pending.data.recipientId
+                  )
+               && data.createdAt == request.time;
+      }
+
+      allow get: if request.auth != null
+                 && pairIncludesUser(pair, request.auth.uid)
+                 && (!exists(/databases/$(database)/documents/friendships/$(pair))
+                     || request.auth.uid in resource.data.memberIds);
+      allow list: if request.auth != null
+                  && request.auth.uid in resource.data.memberIds;
+      allow create: if activeAccount() && request.auth != null
+                    && exists(/databases/$(database)/documents/friendRequests/$(pair))
+                    && request.auth.uid == get(/databases/$(database)/documents/friendRequests/$(pair)).data.recipientId
+                    && exists(/databases/$(database)/documents/activeAccounts/$(get(/databases/$(database)/documents/friendRequests/$(pair)).data.requesterId))
+                    && validFriendship(
+                         request.resource.data,
+                         get(/databases/$(database)/documents/friendRequests/$(pair))
+                       )
+                    && !readersBlocked(
+                         get(/databases/$(database)/documents/friendRequests/$(pair)).data.requesterId,
+                         get(/databases/$(database)/documents/friendRequests/$(pair)).data.recipientId
+                       )
+                    && !existsAfter(/databases/$(database)/documents/friendRequests/$(pair));
+      allow delete: if activeAccount() && request.auth != null
+                    && request.auth.uid in resource.data.memberIds;
+      allow update: if false;
+    }
+
+    // Blocks are directional. Creating one must atomically remove any request
+    // and friendship for the pair; deleting it never recreates either.
+    match /blocks/{blockerId}/blocked/{blockedId} {
+      function validBlock(data) {
+        return data.keys().hasOnly([
+                 'blockerId', 'blockedId', 'pairId', 'blockedDisplayName',
+                 'blockedPhotoUrl', 'createdAt'
+               ])
+               && data.blockerId == blockerId
+               && data.blockedId == blockedId
+               && validPairId(data.pairId, blockerId, blockedId)
+               && data.blockedDisplayName is string
+               && data.blockedDisplayName.size() > 0
+               && data.blockedDisplayName.size() <= 80
+               && (data.blockedPhotoUrl == null
+                   || (data.blockedPhotoUrl is string
+                       && data.blockedPhotoUrl.size() <= 500
+                       && data.blockedPhotoUrl.matches('^https://.*$')))
+               && data.createdAt == request.time;
+      }
+
+      allow read: if request.auth != null && request.auth.uid == blockerId;
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == blockerId
+                    && validBlock(request.resource.data)
+                    && exists(/databases/$(database)/documents/readerProfiles/$(blockedId))
+                    && request.resource.data.blockedDisplayName
+                         == get(/databases/$(database)/documents/readerProfiles/$(blockedId)).data.displayName
+                    && request.resource.data.blockedPhotoUrl
+                         == get(/databases/$(database)/documents/readerProfiles/$(blockedId)).data.photoUrl
+                    && !existsAfter(/databases/$(database)/documents/friendRequests/$(request.resource.data.pairId))
+                    && !existsAfter(/databases/$(database)/documents/friendships/$(request.resource.data.pairId));
+      allow delete: if activeAccount() && request.auth != null && request.auth.uid == blockerId;
+      allow update: if false;
+    }
+
+    // ── Users ──────────────────────────────────────────────────────────────
+    //
+    // FIX #1: Allow unauthenticated reads.
+    // User profiles (displayName, username, photoUrl, locationLabel) are
+    // intentionally public — required for /u/:username deep links and the
+    // PublicProfileScreen which is accessible without a Readuo account.
+    match /users/{userId} {
+      allow read: if true;
+
+      // Only the authenticated user can create their own document,
+      // and uid must match the document ID.
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.uid == userId
+                    && request.resource.data.username is string
+                    && request.resource.data.username.size() >= 3;
+
+      // FIX #4 (users): uid and username are immutable after creation.
+      //
+      // Two allowed update shapes:
+      //   1. Owner updating their own doc — uid/username must stay locked.
+      //   2. Any signed-in user crediting *another* user's leafBalance only.
+      //      This is the stopgap that lets reaction rewards work without a
+      //      Cloud Function: setReaction() needs to bump the post author's
+      //      leafBalance, and the reactor is not the author. Restricting
+      //      the affected key to `leafBalance` prevents abuse of other
+      //      profile fields. Replace with a Cloud Function trigger when
+      //      the backend project is set up.
+      allow update: if activeAccount() && request.auth != null
+                    && (
+                      (
+                        request.auth.uid == userId
+                        && request.resource.data.uid == resource.data.uid
+                        && request.resource.data.username == resource.data.username
+                      )
+                      // Cross-user updates are allowed ONLY when the mutation
+                      // is confined to the leafBalance or the room compliment
+                      // count map. Reactions, room tips, and room compliments
+                      // all need to write to *another* user's doc without a
+                      // Cloud Function.
+                      || request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['leafBalance', 'roomComplimentCounts'])
+                    );
+
+      // Accounts are not deleted at the document level in v1.0.
+      allow delete: if false;
+    }
+
+    match /users/{userId}/onboarding/{documentId} {
+      function validFirstBookState(data) {
+        return documentId == 'firstBook'
+               && data.keys().hasOnly([
+                    'ownerId', 'status', 'createdAt', 'updatedAt'
+                  ])
+               && data.ownerId == userId
+               && data.status in ['pending', 'skipped', 'completed']
+               && data.createdAt is timestamp
+               && data.updatedAt is timestamp;
+      }
+
+      allow read: if request.auth != null
+                  && request.auth.uid == userId
+                  && documentId == 'firstBook';
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && validFirstBookState(request.resource.data);
+      allow update: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && validFirstBookState(request.resource.data)
+                    && request.resource.data.ownerId == resource.data.ownerId
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['status', 'updatedAt']);
+      allow delete: if false;
+    }
+
+    match /users/{userId}/circleDrafts/{draftId} {
+      function validDraft(data) {
+        return draftId == 'newPost'
+               && data.keys().hasOnly([
+                    'postId', 'text', 'attachedBookOwnerId', 'attachedShelfId',
+                     'attachedBookId', 'attachedTitle', 'attachedAuthor',
+                     'attachedCoverUrl', 'photoPath', 'updatedAt'
+                  ])
+                && data.keys().hasAll([
+                     'postId', 'text', 'attachedBookOwnerId', 'attachedShelfId',
+                     'attachedBookId', 'attachedTitle', 'attachedAuthor',
+                     'attachedCoverUrl', 'updatedAt'
+                  ])
+               && data.postId is string
+               && data.postId.size() > 0
+               && data.postId.size() <= 128
+               && data.text is string
+                && data.text.size() <= 5000
+                && data.updatedAt == request.time
+                && validCirclePhoto(
+                     data.get('photoPath', null), userId, data.postId
+                   )
+                && validCircleAttachment(data, userId);
+      }
+
+      allow get: if request.auth != null
+                 && request.auth.uid == userId
+                 && draftId == 'newPost';
+      allow list: if false;
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && validDraft(request.resource.data);
+      allow update: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.postId == resource.data.postId
+                    && validDraft(request.resource.data);
+      allow delete: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && draftId == 'newPost';
+    }
+
+    match /users/{userId}/reviewDrafts/{reviewId} {
+      function validRating(rating) {
+        return rating == null
+               || (rating is int && rating >= 1 && rating <= 5);
+      }
+
+      function validSource(data) {
+        let bookPath = /databases/$(database)/documents/shelves/$(data.shelfId)/books/$(data.bookId);
+        let book = getAfter(bookPath).data;
+        return existsAfter(bookPath)
+               && book.ownerId == userId
+               && book.shelfId == data.shelfId
+               && book.createdAt == data.bookCreatedAt
+               && book.title == data.title
+               && book.author == data.bookAuthor
+               && book.coverUrl == data.coverUrl;
+      }
+
+      function validDraft(data) {
+        return data.keys().hasOnly([
+                 'reviewId', 'shelfId', 'bookId', 'bookCreatedAt', 'title',
+                 'bookAuthor', 'coverUrl', 'text', 'rating', 'updatedAt'
+               ])
+               && data.keys().hasAll([
+                    'reviewId', 'shelfId', 'bookId', 'bookCreatedAt', 'title',
+                    'bookAuthor', 'coverUrl', 'text', 'rating', 'updatedAt'
+                  ])
+               && data.reviewId == reviewId
+               && reviewId == userId + '--' + data.bookId
+               && data.shelfId is string
+               && data.shelfId.size() > 0
+               && data.bookId is string
+               && data.bookId.size() > 0
+               && data.bookCreatedAt is timestamp
+               && data.title is string
+               && data.title.size() > 0
+               && data.title.size() <= 160
+               && data.bookAuthor is string
+               && data.bookAuthor.size() > 0
+               && data.bookAuthor.size() <= 120
+               && (data.coverUrl == null
+                   || (data.coverUrl is string
+                       && data.coverUrl.size() <= 500))
+               && data.text is string
+               && data.text.size() <= 5000
+               && validRating(data.rating)
+               && data.updatedAt == request.time
+               && validSource(data);
+      }
+
+      allow get: if request.auth != null
+                 && request.auth.uid == userId;
+      allow list: if false;
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && validDraft(request.resource.data);
+      allow update: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.reviewId == resource.data.reviewId
+                    && request.resource.data.bookId == resource.data.bookId
+                    && request.resource.data.bookCreatedAt
+                         == resource.data.bookCreatedAt
+                    && validDraft(request.resource.data);
+      allow delete: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId;
+    }
+
+    // ── Friend requests (incoming) ──────────────────────────────────────
+    //
+    // Doc id = sender's uid. The receiver (userId) can read and delete
+    // (decline). The sender can create their own request doc (gated by
+    // auth.uid == requesterId) but cannot request themselves. Accept
+    // logic deletes this doc and writes symmetric /friends docs via a
+    // batch — the /friends write rules below cover that path.
+    match /users/{userId}/friendRequests/{requesterId} {
+      allow read: if request.auth != null
+                    && (request.auth.uid == userId
+                        || request.auth.uid == requesterId);
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == requesterId
+                    && userId != requesterId;
+      allow delete: if activeAccount() && request.auth != null
+                    && (request.auth.uid == userId
+                        || request.auth.uid == requesterId);
+      allow update: if false;
+    }
+
+    // ── Friends (symmetric, accepted) ────────────────────────────────────
+    //
+    // Doc id = friend's uid. Either side of the friendship can read.
+    // Write (create on accept, delete on remove) is allowed for the
+    // owner of the subcollection OR the friend themselves (the accept
+    // batch writes into both users' subcollections).
+    match /users/{userId}/friends/{friendId} {
+      allow read: if request.auth != null
+                    && (request.auth.uid == userId
+                        || request.auth.uid == friendId);
+      allow create: if activeAccount() && request.auth != null
+                    && (request.auth.uid == userId
+                        || request.auth.uid == friendId)
+                    && userId != friendId;
+      allow delete: if activeAccount() && request.auth != null
+                    && (request.auth.uid == userId
+                        || request.auth.uid == friendId);
+      allow update: if false;
+    }
+
+    // ── Global Book Cache ──────────────────────────────────────────────────
+    match /books/{isbn} {
+      allow read: if true;
+      allow write: if activeAccount() && request.auth != null;
+    }
+
+    // A resumable operation locks its source (and move destination) before any
+    // books change. Every chunk names exactly one book so rules can prove its
+    // source deletion, destination copy, ISBN-index transition, and counts.
+    match /users/{userId}/shelfOperations/{operationId} {
+      function sourceShelfPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.sourceShelfId);
+      }
+
+      function destinationShelfPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.destinationShelfId);
+      }
+
+      function sourceBookPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.sourceShelfId)/books/$(data.currentBookId);
+      }
+
+      function destinationBookPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.destinationShelfId)/books/$(data.currentBookId);
+      }
+
+      function isbnIndexPath(data) {
+        return /databases/$(database)/documents/users/$(userId)/libraryBookIsbns/$(data.currentBookIsbn);
+      }
+
+      function unlocked(data) {
+        return !data.keys().hasAll(['mutationOperationId'])
+               || data.mutationOperationId == null;
+      }
+
+      function validOperation(data) {
+        return data.keys().hasOnly([
+                 'ownerId', 'sourceShelfId', 'destinationShelfId', 'mode',
+                 'status', 'totalCount', 'processedCount', 'currentBookId',
+                 'currentBookIsbn', 'destinationInitialCount',
+                 'destinationVisibility', 'destinationAutoShareActivity',
+                 'createdAt', 'updatedAt'
+               ])
+               && data.ownerId == userId
+               && data.sourceShelfId == operationId
+               && data.sourceShelfId is string
+               && data.mode in ['move', 'remove']
+               && data.status in ['running', 'completed']
+               && data.totalCount is int
+               && data.totalCount >= 0
+               && data.processedCount is int
+               && data.processedCount >= 0
+               && data.processedCount <= data.totalCount
+               && (data.currentBookId == null || data.currentBookId is string)
+               && (
+                 data.currentBookIsbn == null
+                 || (data.currentBookIsbn is string
+                     && data.currentBookIsbn.matches('^(978|979)[0-9]{10}$'))
+               )
+               && (
+                 (
+                   data.mode == 'move'
+                   && data.destinationShelfId is string
+                   && data.destinationShelfId != data.sourceShelfId
+                   && data.destinationInitialCount is int
+                   && data.destinationInitialCount >= 0
+                   && data.destinationVisibility in ['friends', 'private', 'public']
+                   && data.destinationAutoShareActivity is bool
+                 )
+                 || (
+                   data.mode == 'remove'
+                   && data.destinationShelfId == null
+                   && data.destinationInitialCount == null
+                   && data.destinationVisibility == null
+                   && data.destinationAutoShareActivity == null
+                 )
+               )
+               && data.createdAt is timestamp
+               && data.updatedAt is timestamp;
+      }
+
+      function sourceStartsLocked(data) {
+        return exists(sourceShelfPath(data))
+               && get(sourceShelfPath(data)).data.ownerId == userId
+               && unlocked(get(sourceShelfPath(data)).data)
+               && get(sourceShelfPath(data)).data.bookCount == data.totalCount
+               && existsAfter(sourceShelfPath(data))
+               && getAfter(sourceShelfPath(data)).data.mutationOperationId == operationId
+               && getAfter(sourceShelfPath(data)).data.visibility == 'private'
+               && getAfter(sourceShelfPath(data)).data.autoShareActivity == false
+               && getAfter(sourceShelfPath(data)).data.bookCount == data.totalCount;
+      }
+
+      function destinationStartsLocked(data) {
+        return data.mode == 'remove'
+               || (
+                 exists(destinationShelfPath(data))
+                 && get(destinationShelfPath(data)).data.ownerId == userId
+                 && unlocked(get(destinationShelfPath(data)).data)
+                 && get(destinationShelfPath(data)).data.bookCount
+                      == data.destinationInitialCount
+                 && get(destinationShelfPath(data)).data.visibility
+                      == data.destinationVisibility
+                 && get(destinationShelfPath(data)).data.autoShareActivity
+                      == data.destinationAutoShareActivity
+                 && existsAfter(destinationShelfPath(data))
+                 && getAfter(destinationShelfPath(data)).data.mutationOperationId
+                      == operationId
+                 && getAfter(destinationShelfPath(data)).data.visibility == 'private'
+                 && getAfter(destinationShelfPath(data)).data.autoShareActivity == false
+                 && getAfter(destinationShelfPath(data)).data.bookCount
+                      == data.destinationInitialCount
+               );
+      }
+
+      function validIsbnTransition(data) {
+        return data.currentBookIsbn == null
+               || (
+                 data.currentBookId == data.currentBookIsbn
+                 && exists(isbnIndexPath(data))
+                 && get(isbnIndexPath(data)).data.ownerId == userId
+                 && get(isbnIndexPath(data)).data.shelfId == data.sourceShelfId
+                 && get(isbnIndexPath(data)).data.bookId == data.currentBookId
+                 && (
+                   (
+                     data.mode == 'move'
+                     && existsAfter(isbnIndexPath(data))
+                     && getAfter(isbnIndexPath(data)).data.ownerId == userId
+                     && getAfter(isbnIndexPath(data)).data.shelfId
+                          == data.destinationShelfId
+                     && getAfter(isbnIndexPath(data)).data.bookId
+                          == data.currentBookId
+                     && getAfter(isbnIndexPath(data)).data.title
+                          == get(sourceBookPath(data)).data.title
+                     && getAfter(isbnIndexPath(data)).data.shelfName
+                          == get(destinationShelfPath(data)).data.name
+                   )
+                   || (data.mode == 'remove'
+                       && !existsAfter(isbnIndexPath(data)))
+                 )
+               );
+      }
+
+      function validChunk(data) {
+        return resource.data.status == 'running'
+               && data.status == 'running'
+               && data.processedCount == resource.data.processedCount + 1
+               && data.currentBookId is string
+               && exists(sourceBookPath(data))
+               && get(sourceBookPath(data)).data.ownerId == userId
+               && get(sourceBookPath(data)).data.shelfId == data.sourceShelfId
+               && get(sourceBookPath(data)).data.isbn == data.currentBookIsbn
+               && !existsAfter(sourceBookPath(data))
+               && get(sourceShelfPath(data)).data.mutationOperationId == operationId
+               && getAfter(sourceShelfPath(data)).data.mutationOperationId == operationId
+               && getAfter(sourceShelfPath(data)).data.bookCount
+                    == get(sourceShelfPath(data)).data.bookCount - 1
+               && (
+                 (
+                   data.mode == 'move'
+                   && existsAfter(destinationBookPath(data))
+                   && getAfter(destinationBookPath(data)).data
+                        .diff(get(sourceBookPath(data)).data).affectedKeys()
+                        .hasOnly(['shelfId', 'activityGeneration'])
+                   && getAfter(destinationBookPath(data)).data.shelfId
+                        == data.destinationShelfId
+                   && getAfter(destinationBookPath(data)).data.keys()
+                        .hasAll(['activityGeneration'])
+                   && (
+                     !get(sourceBookPath(data)).data.keys()
+                          .hasAll(['activityGeneration'])
+                     || getAfter(destinationBookPath(data)).data.activityGeneration
+                          != get(sourceBookPath(data)).data.activityGeneration
+                   )
+                   && get(destinationShelfPath(data)).data.mutationOperationId
+                        == operationId
+                   && getAfter(destinationShelfPath(data)).data.mutationOperationId
+                        == operationId
+                   && getAfter(destinationShelfPath(data)).data.bookCount
+                        == get(destinationShelfPath(data)).data.bookCount + 1
+                 )
+                 || data.mode == 'remove'
+               )
+               && validIsbnTransition(data);
+      }
+
+      function validFinish(data) {
+        return resource.data.status == 'running'
+               && data.status == 'completed'
+               && data.processedCount == resource.data.processedCount
+               && data.processedCount == data.totalCount
+               && data.currentBookId == resource.data.currentBookId
+               && data.currentBookIsbn == resource.data.currentBookIsbn
+               && !existsAfter(sourceShelfPath(data))
+               && get(sourceShelfPath(data)).data.ownerId == userId
+               && get(sourceShelfPath(data)).data.mutationOperationId == operationId
+               && get(sourceShelfPath(data)).data.bookCount == 0
+               && (
+                 data.mode == 'remove'
+                 || (
+                   existsAfter(destinationShelfPath(data))
+                   && get(destinationShelfPath(data)).data.mutationOperationId
+                        == operationId
+                   && getAfter(destinationShelfPath(data)).data.ownerId == userId
+                   && unlocked(getAfter(destinationShelfPath(data)).data)
+                   && getAfter(destinationShelfPath(data)).data.bookCount
+                        == data.destinationInitialCount + data.totalCount
+                   && getAfter(destinationShelfPath(data)).data.visibility
+                        == data.destinationVisibility
+                   && getAfter(destinationShelfPath(data)).data.autoShareActivity
+                        == data.destinationAutoShareActivity
+                 )
+               );
+      }
+
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.status == 'running'
+                    && request.resource.data.processedCount == 0
+                    && request.resource.data.currentBookId == null
+                    && request.resource.data.currentBookIsbn == null
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.updatedAt == request.time
+                    && validOperation(request.resource.data)
+                    && sourceStartsLocked(request.resource.data)
+                    && destinationStartsLocked(request.resource.data);
+      allow update: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.ownerId == resource.data.ownerId
+                    && request.resource.data.sourceShelfId == resource.data.sourceShelfId
+                    && request.resource.data.destinationShelfId == resource.data.destinationShelfId
+                    && request.resource.data.mode == resource.data.mode
+                    && request.resource.data.totalCount == resource.data.totalCount
+                    && request.resource.data.destinationInitialCount == resource.data.destinationInitialCount
+                    && request.resource.data.destinationVisibility == resource.data.destinationVisibility
+                    && request.resource.data.destinationAutoShareActivity == resource.data.destinationAutoShareActivity
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.updatedAt == request.time
+                    && validOperation(request.resource.data)
+                    && (validChunk(request.resource.data)
+                        || validFinish(request.resource.data));
+      allow delete: if false;
+    }
+
+    // An immutable owner-only move record lets every write in one atomic
+    // transaction cross-prove the source, destination, entry, counts, ISBN
+    // index, and unchanged privacy settings.
+    match /users/{userId}/bookMoves/{moveId} {
+      function sourceShelfPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.sourceShelfId);
+      }
+
+      function destinationShelfPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.destinationShelfId);
+      }
+
+      function sourceBookPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.sourceShelfId)/books/$(data.bookId);
+      }
+
+      function destinationBookPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.destinationShelfId)/books/$(data.bookId);
+      }
+
+      function isbnIndexPath(data) {
+        return /databases/$(database)/documents/users/$(userId)/libraryBookIsbns/$(data.isbn);
+      }
+
+      function unlocked(data) {
+        return !data.keys().hasAll(['mutationOperationId'])
+               || data.mutationOperationId == null;
+      }
+
+      function validProofShape(data) {
+        return data.keys().hasOnly([
+                 'ownerId', 'moveId', 'sourceShelfId',
+                 'destinationShelfId', 'bookId', 'isbn', 'title',
+                 'sourceCountBefore', 'destinationCountBefore',
+                 'sourceVisibility', 'destinationVisibility',
+                 'sourceAutoShareActivity', 'destinationAutoShareActivity',
+                 'createdAt', 'updatedAt'
+               ])
+               && data.ownerId == userId
+               && data.moveId == moveId
+               && data.moveId is string
+               && data.moveId.size() > 0
+               && data.sourceShelfId is string
+               && data.destinationShelfId is string
+               && data.sourceShelfId != data.destinationShelfId
+               && data.bookId is string
+               && data.bookId.size() > 0
+               && (data.isbn == null
+                   || (data.isbn is string
+                       && data.isbn.matches('^(978|979)[0-9]{10}$')))
+               && data.title is string
+               && data.title.size() > 0
+               && data.sourceCountBefore is int
+               && data.sourceCountBefore > 0
+               && data.destinationCountBefore is int
+               && data.destinationCountBefore >= 0
+               && data.sourceVisibility in ['friends', 'private', 'public']
+               && data.destinationVisibility in ['friends', 'private', 'public']
+               && data.sourceAutoShareActivity is bool
+               && data.destinationAutoShareActivity is bool
+               && data.createdAt is timestamp
+               && data.updatedAt == request.time;
+      }
+
+      function validShelfTransition(data) {
+        let source = get(sourceShelfPath(data)).data;
+        let destination = get(destinationShelfPath(data)).data;
+        let sourceAfter = getAfter(sourceShelfPath(data)).data;
+        let destinationAfter = getAfter(destinationShelfPath(data)).data;
+        return source.ownerId == userId
+               && destination.ownerId == userId
+               && unlocked(source)
+               && unlocked(destination)
+               && source.bookCount == data.sourceCountBefore
+               && destination.bookCount == data.destinationCountBefore
+               && sourceAfter.bookCount == data.sourceCountBefore - 1
+               && destinationAfter.bookCount == data.destinationCountBefore + 1
+               && sourceAfter.updatedAt == request.time
+               && destinationAfter.updatedAt == request.time
+               && sourceAfter.diff(source).affectedKeys()
+                    .hasOnly(['bookCount', 'lastBookMoveId', 'updatedAt'])
+               && destinationAfter.diff(destination).affectedKeys()
+                    .hasOnly(['bookCount', 'lastBookMoveId', 'updatedAt'])
+               && sourceAfter.lastBookMoveId == moveId
+               && destinationAfter.lastBookMoveId == moveId
+               && source.visibility == data.sourceVisibility
+               && destination.visibility == data.destinationVisibility
+               && source.autoShareActivity == data.sourceAutoShareActivity
+               && destination.autoShareActivity
+                    == data.destinationAutoShareActivity;
+      }
+
+      function validBookTransition(data) {
+        let sourceBook = get(sourceBookPath(data)).data;
+        let destinationBook = getAfter(destinationBookPath(data)).data;
+        return exists(sourceBookPath(data))
+               && !exists(destinationBookPath(data))
+               && !existsAfter(sourceBookPath(data))
+               && existsAfter(destinationBookPath(data))
+               && sourceBook.ownerId == userId
+               && sourceBook.shelfId == data.sourceShelfId
+               && sourceBook.isbn == data.isbn
+               && sourceBook.title == data.title
+               && destinationBook.shelfId == data.destinationShelfId
+               && destinationBook.diff(sourceBook).affectedKeys()
+                    .hasOnly(['shelfId', 'activityGeneration'])
+               && destinationBook.keys().hasAll(['activityGeneration'])
+               && (
+                 !sourceBook.keys().hasAll(['activityGeneration'])
+                 || destinationBook.activityGeneration
+                      != sourceBook.activityGeneration
+               );
+      }
+
+      function validIndexedBookTransition(data) {
+        let index = get(isbnIndexPath(data)).data;
+        let indexAfter = getAfter(isbnIndexPath(data)).data;
+        return data.bookId == data.isbn
+               && index.ownerId == userId
+               && index.shelfId == data.sourceShelfId
+               && index.bookId == data.bookId
+               && index.title == data.title
+               && indexAfter.shelfId == data.destinationShelfId
+               && indexAfter.shelfName == get(destinationShelfPath(data)).data.name
+               && indexAfter.diff(index).affectedKeys()
+                    .hasOnly(['shelfId', 'shelfName']);
+      }
+
+      function validIndexTransition(data) {
+        return data.isbn == null || validIndexedBookTransition(data);
+      }
+
+      function validMoveProof(data) {
+        return validProofShape(data)
+               && validShelfTransition(data)
+               && validBookTransition(data)
+               && validIndexTransition(data);
+      }
+
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.createdAt == request.time
+                    && validMoveProof(request.resource.data);
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // An immutable owner-only removal record binds one confirmed entry
+    // generation to its exact shelf, count decrement, and ISBN release. Future
+    // derived privacy cleanup can consume this record without changing the
+    // release-one transaction shape.
+    match /users/{userId}/bookRemovals/{removalId} {
+      function shelfPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.shelfId);
+      }
+
+      function bookPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.shelfId)/books/$(data.bookId);
+      }
+
+      function isbnIndexPath(data) {
+        return /databases/$(database)/documents/users/$(userId)/libraryBookIsbns/$(data.isbn);
+      }
+
+      function unlocked(data) {
+        return !data.keys().hasAll(['mutationOperationId'])
+               || data.mutationOperationId == null;
+      }
+
+      function validRemovalShape(data) {
+        return data.keys().hasOnly([
+                 'ownerId', 'removalId', 'shelfId', 'bookId', 'isbn', 'title',
+                 'sourceBookCreatedAt', 'sourceCountBefore',
+                 'sourceVisibility', 'sourceAutoShareActivity',
+                 'createdAt', 'updatedAt'
+               ])
+               && data.ownerId == userId
+               && data.removalId == removalId
+               && data.removalId is string
+               && data.removalId.size() > 0
+               && data.shelfId is string
+               && data.shelfId.size() > 0
+               && data.bookId is string
+               && data.bookId.size() > 0
+               && (data.isbn == null
+                   || (data.isbn is string
+                       && data.isbn.matches('^(978|979)[0-9]{10}$')))
+               && data.title is string
+               && data.title.size() > 0
+               && data.sourceBookCreatedAt is timestamp
+               && data.sourceCountBefore is int
+               && data.sourceCountBefore > 0
+               && data.sourceVisibility in ['friends', 'private', 'public']
+               && data.sourceAutoShareActivity is bool
+               && data.createdAt == request.time
+               && data.updatedAt == request.time;
+      }
+
+      function validShelfTransition(data) {
+        let shelf = get(shelfPath(data)).data;
+        let shelfAfter = getAfter(shelfPath(data)).data;
+        return shelf.ownerId == userId
+               && unlocked(shelf)
+               && shelf.bookCount == data.sourceCountBefore
+               && shelf.visibility == data.sourceVisibility
+               && shelf.autoShareActivity == data.sourceAutoShareActivity
+               && shelfAfter.bookCount == data.sourceCountBefore - 1
+               && shelfAfter.lastBookRemovalId == removalId
+               && shelfAfter.updatedAt == request.time
+               && shelfAfter.diff(shelf).affectedKeys()
+                    .hasOnly(['bookCount', 'lastBookRemovalId', 'updatedAt']);
+      }
+
+      function validBookTransition(data) {
+        let book = get(bookPath(data)).data;
+        return book.ownerId == userId
+               && book.shelfId == data.shelfId
+               && book.isbn == data.isbn
+               && book.title == data.title
+               && book.createdAt == data.sourceBookCreatedAt
+               && !existsAfter(bookPath(data));
+      }
+
+      function validIndexedRemoval(data) {
+        let index = get(isbnIndexPath(data)).data;
+        return data.bookId == data.isbn
+               && index.ownerId == userId
+               && index.shelfId == data.shelfId
+               && index.bookId == data.bookId
+               && index.title == data.title
+               && index.createdAt == data.sourceBookCreatedAt
+               && !existsAfter(isbnIndexPath(data));
+      }
+
+      function validRemoval(data) {
+        return validRemovalShape(data)
+               && validShelfTransition(data)
+               && validBookTransition(data)
+               && (data.isbn == null || validIndexedRemoval(data));
+      }
+
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && validRemoval(request.resource.data);
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    match /publicShelfDirectory/{shelfId} {
+      function validDirectoryEntry(data) {
+        return data.keys().hasOnly([
+                 'ownerId', 'shelfId', 'createdAt', 'updatedAt'
+               ])
+               && data.ownerId is string
+               && data.shelfId == shelfId
+               && data.createdAt is timestamp
+               && data.updatedAt is timestamp;
+      }
+
+      function publicShelfAfter() {
+        return getAfter(/databases/$(database)/documents/shelves/$(shelfId));
+      }
+
+      allow read: if request.auth != null;
+      allow create, update: if activeAccount() && request.auth != null
+                            && request.resource.data.ownerId == request.auth.uid
+                            && request.resource.data.createdAt == request.time
+                            && request.resource.data.updatedAt == request.time
+                            && validDirectoryEntry(request.resource.data)
+                            && publicShelfAfter().data.ownerId == request.auth.uid
+                            && publicShelfAfter().data.visibility == 'public';
+      allow delete: if activeAccount() && request.auth != null
+                    && resource.data.ownerId == request.auth.uid
+                    && (
+                      !existsAfter(/databases/$(database)/documents/shelves/$(shelfId))
+                      || publicShelfAfter().data.visibility != 'public'
+                    );
+    }
+
+    // ── Shelves ────────────────────────────────────────────────────────────
+    match /shelves/{shelfId} {
+      function unlocked(data) {
+        return !data.keys().hasAll(['mutationOperationId'])
+               || data.mutationOperationId == null;
+      }
+
+      function operationPath(data) {
+        return /databases/$(database)/documents/users/$(data.ownerId)/shelfOperations/$(data.mutationOperationId);
+      }
+
+      function validShelf(data) {
+        return data.keys().hasOnly([
+                 'ownerId', 'name', 'description', 'visibility', 'autoShareActivity',
+                 'bookCount', 'mutationOperationId', 'lastBookMoveId',
+                 'lastBookRemovalId',
+                 'createdAt', 'updatedAt'
+               ])
+               && data.ownerId is string
+               && data.name is string
+               && data.name.size() > 0
+               && data.name.size() <= 60
+               && data.name.matches('.*\\S.*')
+               && (
+                 !data.keys().hasAll(['description'])
+                 || data.description == null
+                 || (data.description is string && data.description.size() <= 500)
+               )
+               && data.visibility in ['friends', 'private', 'public']
+               && data.autoShareActivity is bool
+               && !(data.visibility == 'private'
+                    && data.autoShareActivity == true)
+               && (
+                 !data.keys().hasAll(['bookCount'])
+                 || (data.bookCount is int && data.bookCount >= 0)
+               )
+               && (
+                 !data.keys().hasAll(['mutationOperationId'])
+                 || data.mutationOperationId == null
+                 || data.mutationOperationId is string
+               )
+               && (
+                 !data.keys().hasAll(['lastBookMoveId'])
+                 || data.lastBookMoveId == null
+                 || data.lastBookMoveId is string
+               )
+               && (
+                 !data.keys().hasAll(['lastBookRemovalId'])
+                 || data.lastBookRemovalId == null
+                 || data.lastBookRemovalId is string
+               )
+               && data.createdAt is timestamp
+               && data.updatedAt is timestamp;
+      }
+
+      function validBookCountIncrement() {
+        return unlocked(resource.data)
+               && unlocked(request.resource.data)
+               && resource.data.keys().hasAll(['bookCount'])
+               && resource.data.bookCount is int
+               && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['bookCount', 'updatedAt'])
+               && request.resource.data.bookCount == resource.data.bookCount + 1;
+      }
+
+      function bookMovePath() {
+        return /databases/$(database)/documents/users/$(resource.data.ownerId)/bookMoves/$(request.resource.data.lastBookMoveId);
+      }
+
+      function validSingleBookMoveCountChange() {
+        let move = getAfter(bookMovePath()).data;
+        return unlocked(resource.data)
+               && unlocked(request.resource.data)
+               && request.resource.data.lastBookMoveId is string
+               && move.ownerId == resource.data.ownerId
+               && move.moveId == request.resource.data.lastBookMoveId
+               && move.updatedAt == request.time
+               && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['bookCount', 'lastBookMoveId', 'updatedAt'])
+               && (
+                 (
+                   move.sourceShelfId == shelfId
+                   && resource.data.bookCount
+                        == move.sourceCountBefore
+                   && request.resource.data.bookCount == resource.data.bookCount - 1
+                 )
+                 || (
+                   move.destinationShelfId == shelfId
+                   && resource.data.bookCount
+                        == move.destinationCountBefore
+                   && request.resource.data.bookCount == resource.data.bookCount + 1
+                 )
+               );
+      }
+
+      function bookRemovalPath() {
+        return /databases/$(database)/documents/users/$(resource.data.ownerId)/bookRemovals/$(request.resource.data.lastBookRemovalId);
+      }
+
+      function validSingleBookRemovalCountChange() {
+        let removal = getAfter(bookRemovalPath()).data;
+        return unlocked(resource.data)
+               && unlocked(request.resource.data)
+               && request.resource.data.lastBookRemovalId is string
+               && removal.ownerId == resource.data.ownerId
+               && removal.removalId == request.resource.data.lastBookRemovalId
+               && removal.shelfId == shelfId
+               && removal.updatedAt == request.time
+               && resource.data.bookCount == removal.sourceCountBefore
+               && request.resource.data.bookCount == resource.data.bookCount - 1
+               && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['bookCount', 'lastBookRemovalId', 'updatedAt']);
+      }
+
+      function validOperationLock() {
+        return unlocked(resource.data)
+               && !unlocked(request.resource.data)
+               && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly([
+                      'mutationOperationId', 'visibility',
+                      'autoShareActivity', 'updatedAt'
+                    ])
+               && request.resource.data.visibility == 'private'
+               && request.resource.data.autoShareActivity == false
+               && existsAfter(operationPath(request.resource.data))
+               && getAfter(operationPath(request.resource.data)).data.status == 'running'
+               && getAfter(operationPath(request.resource.data)).data.ownerId
+                    == resource.data.ownerId
+               && (
+                 getAfter(operationPath(request.resource.data)).data.sourceShelfId
+                   == shelfId
+                 || getAfter(operationPath(request.resource.data)).data.destinationShelfId
+                   == shelfId
+               );
+      }
+
+      function validOperationCountChange() {
+        return !unlocked(resource.data)
+               && request.resource.data.mutationOperationId
+                    == resource.data.mutationOperationId
+               && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['bookCount', 'updatedAt'])
+               && exists(operationPath(resource.data))
+               && existsAfter(operationPath(resource.data))
+               && get(operationPath(resource.data)).data.status == 'running'
+               && getAfter(operationPath(resource.data)).data.status == 'running'
+               && getAfter(operationPath(resource.data)).data.processedCount
+                    == get(operationPath(resource.data)).data.processedCount + 1
+               && (
+                 (
+                   getAfter(operationPath(resource.data)).data.sourceShelfId == shelfId
+                   && request.resource.data.bookCount == resource.data.bookCount - 1
+                 )
+                 || (
+                   getAfter(operationPath(resource.data)).data.mode == 'move'
+                   && getAfter(operationPath(resource.data)).data.destinationShelfId == shelfId
+                   && request.resource.data.bookCount == resource.data.bookCount + 1
+                 )
+               );
+      }
+
+      function validOperationUnlock() {
+        return !unlocked(resource.data)
+               && unlocked(request.resource.data)
+               && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly([
+                      'mutationOperationId', 'visibility',
+                      'autoShareActivity', 'updatedAt'
+                    ])
+               && existsAfter(operationPath(resource.data))
+               && getAfter(operationPath(resource.data)).data.status == 'completed'
+               && getAfter(operationPath(resource.data)).data.destinationShelfId == shelfId
+               && request.resource.data.visibility
+                    == getAfter(operationPath(resource.data)).data.destinationVisibility
+               && request.resource.data.autoShareActivity
+                    == getAfter(operationPath(resource.data)).data.destinationAutoShareActivity;
+      }
+
+      allow read: if request.auth != null
+                  && request.auth.uid == resource.data.ownerId;
+      allow read: if canReadSharedShelf(resource.data);
+
+      allow create: if activeAccount() && request.auth != null
+                    && request.resource.data.ownerId == request.auth.uid
+                    && unlocked(request.resource.data)
+                    && (
+                      !request.resource.data.keys().hasAll(['bookCount'])
+                      || request.resource.data.bookCount == 0
+                    )
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.updatedAt == request.time
+                    && validShelf(request.resource.data);
+
+      allow update: if activeAccount() && request.auth != null
+                    && request.auth.uid == resource.data.ownerId
+                    && (
+                      (
+                        request.resource.data.diff(resource.data).affectedKeys()
+                          .hasAll(['lastBookRemovalId'])
+                        && validSingleBookRemovalCountChange()
+                      )
+                      || (
+                        request.resource.data.diff(resource.data).affectedKeys()
+                          .hasAll(['lastBookMoveId'])
+                        && validSingleBookMoveCountChange()
+                      )
+                      || (
+                        request.resource.data.ownerId == resource.data.ownerId
+                        && request.resource.data.createdAt == resource.data.createdAt
+                        && request.resource.data.updatedAt == request.time
+                        && validShelf(request.resource.data)
+                        && (
+                          (
+                            unlocked(resource.data)
+                            && unlocked(request.resource.data)
+                            && (
+                              !resource.data.keys().hasAll(['bookCount'])
+                              || request.resource.data.bookCount
+                                   == resource.data.bookCount
+                            )
+                          )
+                          || validBookCountIncrement()
+                          || validOperationLock()
+                          || validOperationCountChange()
+                          || validOperationUnlock()
+                        )
+                      )
+                    );
+
+      allow delete: if activeAccount() && request.auth != null
+                    && request.auth.uid == resource.data.ownerId
+                    && resource.data.bookCount == 0
+                    && (
+                      unlocked(resource.data)
+                      || (
+                        existsAfter(operationPath(resource.data))
+                        && getAfter(operationPath(resource.data)).data.status
+                             == 'completed'
+                        && getAfter(operationPath(resource.data)).data.sourceShelfId
+                             == shelfId
+                      )
+                    );
+
+      match /books/{bookId} {
+        function parentShelf() {
+          return get(/databases/$(database)/documents/shelves/$(shelfId));
+        }
+
+        function operationPath() {
+          return /databases/$(database)/documents/users/$(request.auth.uid)/shelfOperations/$(parentShelf().data.mutationOperationId);
+        }
+
+        function validLibraryBookShape(data) {
+          return data.keys().hasOnly([
+                   'ownerId', 'shelfId', 'title', 'titleNormalized', 'author',
+                   'isbn', 'isOwned', 'readingStatus', 'coverUrl',
+                   'coverStoragePath', 'lastActivityId', 'activityGeneration',
+                   'publisher', 'publishedYear', 'description',
+                   'createdAt', 'updatedAt'
+                 ])
+                 && data.ownerId is string
+                 && data.ownerId == request.auth.uid
+                 && data.shelfId == shelfId
+                 && data.title is string
+                 && data.title.size() > 0
+                 && data.title.size() <= 160
+                 && data.title.matches('.*\\S.*')
+                 && data.titleNormalized is string
+                 && data.titleNormalized.size() > 0
+                 && data.titleNormalized.size() <= 160
+                 && data.titleNormalized.matches('.*\\S.*')
+                 && data.author is string
+                 && data.author.size() > 0
+                 && data.author.size() <= 120
+                 && data.author.matches('.*\\S.*')
+                 && (data.get('publisher', '') is string && data.get('publisher', '').size() <= 160)
+                 && (data.get('description', '') is string && data.get('description', '').size() <= 2000)
+                 && (data.get('publishedYear', '') == '' || (data.publishedYear is string && data.publishedYear.matches('^[0-9]{4}$')))
+                 && (data.isbn == null
+                     || (data.isbn is string
+                         && data.isbn.matches('^(978|979)[0-9]{10}$')))
+                 && data.isOwned is bool
+                 && data.readingStatus in ['wantToRead', 'reading', 'finished']
+                 && (
+                   data.coverUrl == null
+                   || (
+                     data.coverUrl is string
+                     && data.coverUrl.size() <= 500
+                     && (
+                       data.coverUrl.matches('^https://covers\\.openlibrary\\.org/.*$')
+                       || data.coverUrl.matches('^https://books\\.google\\.com/books/content\\?.*$')
+                       || data.coverUrl.matches('^bookCovers/' + request.auth.uid + '/' + bookId + '/[A-Za-z0-9]{20,64}$')
+                     )
+                   )
+                 )
+                 && ((data.coverStoragePath == null && (data.coverUrl == null || !data.coverUrl.matches('^bookCovers/.*$')))
+                     || (data.coverStoragePath == data.coverUrl
+                         && data.coverStoragePath is string
+                         && data.coverStoragePath.matches('^bookCovers/' + request.auth.uid + '/' + bookId + '/[A-Za-z0-9]{20,64}$')))
+                 && (
+                   !data.keys().hasAll(['lastActivityId'])
+                   || (
+                     data.lastActivityId is string
+                     && data.lastActivityId.size() > 0
+                     && data.lastActivityId.size() <= 128
+                     && data.lastActivityId.matches('^[A-Za-z0-9_-]+$')
+                   )
+                 )
+                 && (
+                   !data.keys().hasAll(['activityGeneration'])
+                   || (
+                     data.activityGeneration is string
+                     && data.activityGeneration.size() > 0
+                     && data.activityGeneration.size() <= 128
+                     && data.activityGeneration.matches('^[A-Za-z0-9_-]+$')
+                   )
+                 )
+                 && data.createdAt is timestamp
+                 && data.updatedAt is timestamp;
+        }
+
+        function matchingNewIsbnIndex(data) {
+          return data.isbn == null
+                 || (
+                   data.isbn == bookId
+                   && !exists(/databases/$(database)/documents/users/$(request.auth.uid)/libraryBookIsbns/$(data.isbn))
+                   && existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/libraryBookIsbns/$(data.isbn))
+                   && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/libraryBookIsbns/$(data.isbn)).data.shelfId == shelfId
+                   && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/libraryBookIsbns/$(data.isbn)).data.bookId == bookId
+                 );
+        }
+
+        function matchingNewBookCount() {
+          return !parentShelf().data.keys().hasAll(['bookCount'])
+                 || (
+                   getAfter(/databases/$(database)/documents/shelves/$(shelfId)).data.bookCount
+                     == parentShelf().data.bookCount + 1
+                   && getAfter(/databases/$(database)/documents/shelves/$(shelfId)).data.updatedAt
+                     == request.time
+                 );
+        }
+
+        function shouldPublishAddedActivity(data) {
+          let shelf = parentShelf().data;
+          return data.isOwned == true
+                 && shelf.visibility in ['friends', 'public']
+                 && shelf.autoShareActivity == true;
+        }
+
+        function matchingAddedActivity(data) {
+          let activityPath = /databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId)/activities/$(data.lastActivityId);
+          let activity = getAfter(activityPath).data;
+          return data.keys().hasAll(['lastActivityId'])
+                 && existsAfter(activityPath)
+                 && activity.authorId == data.ownerId
+                 && activity.shelfId == shelfId
+                 && activity.bookId == bookId
+                 && activity.type == 'added'
+                 && activity.audience == 'friends'
+                 && activity.activityGeneration == data.activityGeneration;
+        }
+
+        function singleBookMovePath() {
+          return /databases/$(database)/documents/users/$(request.auth.uid)/bookMoves/$(getAfter(/databases/$(database)/documents/shelves/$(shelfId)).data.lastBookMoveId);
+        }
+
+        function validSingleMovedCreate() {
+          let move = getAfter(singleBookMovePath()).data;
+          let sourcePath = /databases/$(database)/documents/shelves/$(move.sourceShelfId)/books/$(bookId);
+          return move.updatedAt == request.time
+                 && move.destinationShelfId == shelfId
+                 && move.bookId == bookId
+                 && exists(sourcePath)
+                 && !existsAfter(sourcePath)
+                 && request.resource.data.diff(get(sourcePath).data)
+                      .affectedKeys().hasOnly(['shelfId', 'activityGeneration'])
+                 && request.resource.data.keys()
+                      .hasAll(['activityGeneration'])
+                 && (
+                   !get(sourcePath).data.keys().hasAll(['activityGeneration'])
+                   || request.resource.data.activityGeneration
+                        != get(sourcePath).data.activityGeneration
+                 );
+        }
+
+        function validSingleMoveDelete() {
+          let move = getAfter(singleBookMovePath()).data;
+          let destinationPath = /databases/$(database)/documents/shelves/$(move.destinationShelfId)/books/$(bookId);
+          return move.updatedAt == request.time
+                 && move.sourceShelfId == shelfId
+                 && move.bookId == bookId
+                 && existsAfter(destinationPath)
+                 && getAfter(destinationPath).data
+                      .diff(resource.data).affectedKeys()
+                      .hasOnly(['shelfId', 'activityGeneration'])
+                 && getAfter(destinationPath).data.keys()
+                      .hasAll(['activityGeneration'])
+                 && (
+                   !resource.data.keys().hasAll(['activityGeneration'])
+                   || getAfter(destinationPath).data.activityGeneration
+                        != resource.data.activityGeneration
+                 );
+        }
+
+        function singleBookRemovalPath() {
+          return /databases/$(database)/documents/users/$(request.auth.uid)/bookRemovals/$(getAfter(/databases/$(database)/documents/shelves/$(shelfId)).data.lastBookRemovalId);
+        }
+
+        function validSingleBookRemovalDelete() {
+          let removal = getAfter(singleBookRemovalPath()).data;
+          return removal.updatedAt == request.time
+                 && removal.ownerId == resource.data.ownerId
+                 && removal.shelfId == shelfId
+                 && removal.bookId == bookId
+                 && removal.isbn == resource.data.isbn
+                 && removal.title == resource.data.title
+                 && removal.sourceBookCreatedAt == resource.data.createdAt
+                 && !existsAfter(/databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId));
+        }
+
+        function validMovedCreate() {
+          return parentShelf().data.mutationOperationId is string
+                 && exists(operationPath())
+                 && existsAfter(operationPath())
+                 && get(operationPath()).data.status == 'running'
+                 && getAfter(operationPath()).data.status == 'running'
+                 && getAfter(operationPath()).data.mode == 'move'
+                 && getAfter(operationPath()).data.destinationShelfId == shelfId
+                 && getAfter(operationPath()).data.currentBookId == bookId
+                 && getAfter(operationPath()).data.currentBookIsbn
+                      == request.resource.data.isbn
+                 && exists(/databases/$(database)/documents/shelves/$(getAfter(operationPath()).data.sourceShelfId)/books/$(bookId))
+                 && request.resource.data.diff(
+                      get(/databases/$(database)/documents/shelves/$(getAfter(operationPath()).data.sourceShelfId)/books/$(bookId)).data
+                    ).affectedKeys()
+                    .hasOnly(['shelfId', 'activityGeneration'])
+                 && request.resource.data.keys()
+                      .hasAll(['activityGeneration'])
+                 && (
+                   !get(/databases/$(database)/documents/shelves/$(getAfter(operationPath()).data.sourceShelfId)/books/$(bookId)).data.keys()
+                        .hasAll(['activityGeneration'])
+                   || request.resource.data.activityGeneration
+                        != get(/databases/$(database)/documents/shelves/$(getAfter(operationPath()).data.sourceShelfId)/books/$(bookId)).data.activityGeneration
+                 )
+                 && !existsAfter(/databases/$(database)/documents/shelves/$(getAfter(operationPath()).data.sourceShelfId)/books/$(bookId));
+        }
+
+        function validOperationDelete() {
+          return parentShelf().data.mutationOperationId is string
+                 && existsAfter(operationPath())
+                 && getAfter(operationPath()).data.status == 'running'
+                 && getAfter(operationPath()).data.sourceShelfId == shelfId
+                 && getAfter(operationPath()).data.currentBookId == bookId
+                 && getAfter(operationPath()).data.currentBookIsbn == resource.data.isbn
+                 && !existsAfter(/databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId))
+                 && (
+                   getAfter(operationPath()).data.mode == 'remove'
+                   || (
+                     getAfter(operationPath()).data.mode == 'move'
+                     && existsAfter(/databases/$(database)/documents/shelves/$(getAfter(operationPath()).data.destinationShelfId)/books/$(bookId))
+                     && getAfter(/databases/$(database)/documents/shelves/$(getAfter(operationPath()).data.destinationShelfId)/books/$(bookId)).data
+                          .diff(resource.data).affectedKeys()
+                          .hasOnly(['shelfId', 'activityGeneration'])
+                     && getAfter(/databases/$(database)/documents/shelves/$(getAfter(operationPath()).data.destinationShelfId)/books/$(bookId)).data.keys()
+                          .hasAll(['activityGeneration'])
+                     && (
+                       !resource.data.keys().hasAll(['activityGeneration'])
+                       || getAfter(/databases/$(database)/documents/shelves/$(getAfter(operationPath()).data.destinationShelfId)/books/$(bookId)).data.activityGeneration
+                            != resource.data.activityGeneration
+                     )
+                   )
+                 );
+        }
+
+        function validOwnerStatusUpdate() {
+          let changed = request.resource.data.diff(resource.data).affectedKeys();
+          let shouldPublish = parentShelf().data.visibility in ['friends', 'public']
+                              && parentShelf().data.autoShareActivity == true
+                              && request.resource.data.readingStatus
+                                   in ['reading', 'finished'];
+          return changed
+                   .hasOnly([
+                     'readingStatus', 'lastActivityId', 'activityGeneration',
+                     'updatedAt'
+                   ])
+                 && changed.hasAll(['readingStatus', 'updatedAt'])
+                 && request.resource.data.readingStatus
+                      != resource.data.readingStatus
+                 && (
+                   (
+                     shouldPublish
+                     && changed.hasAll(['lastActivityId'])
+                     && request.resource.data.keys()
+                          .hasAll(['activityGeneration'])
+                     && (
+                       !resource.data.keys().hasAll(['activityGeneration'])
+                       || request.resource.data.activityGeneration
+                            == resource.data.activityGeneration
+                     )
+                     && matchingStatusActivity(request.resource.data)
+                   )
+                   || (
+                     !shouldPublish
+                     && !changed.hasAny([
+                       'lastActivityId', 'activityGeneration'
+                     ])
+                   )
+                 );
+        }
+
+        function matchingStatusActivity(data) {
+          let activityPath = /databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId)/activities/$(data.lastActivityId);
+          let activity = getAfter(activityPath).data;
+          return existsAfter(activityPath)
+                 && activity.authorId == request.auth.uid
+                 && activity.shelfId == shelfId
+                 && activity.bookId == bookId
+                 && activity.type
+                      == (data.readingStatus == 'reading'
+                          ? 'started'
+                          : 'finished')
+                 && activity.audience == 'friends'
+                 && activity.activityGeneration == data.activityGeneration;
+        }
+
+        function validOwnerOwnershipUpdate() {
+          return request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['isOwned', 'updatedAt'])
+                 && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasAll(['isOwned', 'updatedAt'])
+                 && request.resource.data.isOwned != resource.data.isOwned;
+        }
+
+        allow read: if request.auth != null
+                    && request.auth.uid == parentShelf().data.ownerId;
+        allow read: if canReadSharedShelf(parentShelf().data);
+
+        allow create: if activeAccount() && request.auth != null
+                      && request.auth.uid == parentShelf().data.ownerId
+                      && (
+                        (
+                          getAfter(/databases/$(database)/documents/shelves/$(shelfId)).data
+                            .diff(parentShelf().data).affectedKeys()
+                            .hasAll(['lastBookMoveId'])
+                          && validSingleMovedCreate()
+                        )
+                        || (
+                          validLibraryBookShape(request.resource.data)
+                          && (
+                            (
+                              (!parentShelf().data.keys().hasAll(['mutationOperationId'])
+                               || parentShelf().data.mutationOperationId == null)
+                              && request.resource.data.createdAt == request.time
+                              && request.resource.data.updatedAt == request.time
+                              && matchingNewIsbnIndex(request.resource.data)
+                              && matchingNewBookCount()
+                              && request.resource.data.keys()
+                                   .hasAll(['activityGeneration'])
+                              && (
+                                (
+                                  shouldPublishAddedActivity(request.resource.data)
+                                  && matchingAddedActivity(request.resource.data)
+                                )
+                                || (
+                                  !shouldPublishAddedActivity(request.resource.data)
+                                  && !request.resource.data.keys()
+                                       .hasAll(['lastActivityId'])
+                                )
+                              )
+                            )
+                            || validMovedCreate()
+                          )
+                        )
+                      );
+
+        allow update: if activeAccount() && request.auth != null
+                      && request.auth.uid == resource.data.ownerId
+                      && request.auth.uid == parentShelf().data.ownerId
+                      && (!parentShelf().data.keys().hasAll(['mutationOperationId'])
+                          || parentShelf().data.mutationOperationId == null)
+                      && request.resource.data.ownerId == resource.data.ownerId
+                      && request.resource.data.shelfId == resource.data.shelfId
+                      && request.resource.data.createdAt == resource.data.createdAt
+                      && request.resource.data.updatedAt == request.time
+                      && validLibraryBookShape(request.resource.data)
+                      && (validOwnerStatusUpdate()
+                          || validOwnerOwnershipUpdate());
+        allow delete: if activeAccount() && request.auth != null
+                      && request.auth.uid == resource.data.ownerId
+                      && ((
+                            getAfter(/databases/$(database)/documents/shelves/$(shelfId)).data
+                              .diff(parentShelf().data).affectedKeys()
+                              .hasAll(['lastBookRemovalId'])
+                            && validSingleBookRemovalDelete()
+                          )
+                          || (
+                            getAfter(/databases/$(database)/documents/shelves/$(shelfId)).data
+                              .diff(parentShelf().data).affectedKeys()
+                              .hasAll(['lastBookMoveId'])
+                            && validSingleMoveDelete()
+                          )
+                      || validOperationDelete());
+
+        match /activities/{activityId} {
+          function shelfPath() {
+            return /databases/$(database)/documents/shelves/$(shelfId);
+          }
+
+          function bookPath() {
+            return /databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId);
+          }
+
+          function validActivityShape(data) {
+            return data.keys().hasOnly([
+                     'authorId', 'shelfId', 'bookId', 'type', 'batchId',
+                     'audience', 'activityGeneration', 'createdAt'
+                   ])
+                   && data.authorId == request.auth.uid
+                   && data.shelfId == shelfId
+                   && data.bookId == bookId
+                   && data.type in ['added', 'started', 'finished']
+                   && (
+                     data.batchId == null
+                     || (
+                       data.batchId is string
+                       && data.batchId.size() > 0
+                       && data.batchId.size() <= 100
+                       && data.batchId.matches('^[A-Za-z0-9_-]+$')
+                     )
+                   )
+                   && data.audience == 'friends'
+                   && data.activityGeneration is string
+                   && data.activityGeneration.size() > 0
+                   && data.activityGeneration.size() <= 128
+                   && data.activityGeneration.matches('^[A-Za-z0-9_-]+$')
+                   && data.createdAt == request.time;
+          }
+
+          function activityShelfIsShared(data) {
+            return data.ownerId == request.auth.uid
+                   && data.visibility in ['friends', 'public']
+                   && data.autoShareActivity == true;
+          }
+
+          function validAddedActivity() {
+            let after = getAfter(bookPath()).data;
+            return request.resource.data.type == 'added'
+                   && !exists(bookPath())
+                   && after.createdAt == request.time
+                   && after.updatedAt == request.time;
+          }
+
+          function validStatusActivity() {
+            let before = get(bookPath()).data;
+            let after = getAfter(bookPath()).data;
+            let targetStatus = request.resource.data.type == 'started'
+                               ? 'reading'
+                               : 'finished';
+            return request.resource.data.type in ['started', 'finished']
+                   && exists(bookPath())
+                   && before.readingStatus != targetStatus
+                   && after.readingStatus == targetStatus
+                   && after.updatedAt == request.time
+                   && after.diff(before).affectedKeys()
+                        .hasOnly([
+                          'readingStatus', 'lastActivityId',
+                          'activityGeneration', 'updatedAt'
+                        ])
+                   && after.diff(before).affectedKeys()
+                        .hasAll(['readingStatus', 'lastActivityId', 'updatedAt']);
+          }
+
+          function canReadActivity() {
+            let shelf = get(shelfPath()).data;
+            let book = get(bookPath()).data;
+            return request.auth != null
+                   && request.auth.uid != shelf.ownerId
+                   && readersAreFriends(request.auth.uid, shelf.ownerId)
+                   && !readersBlocked(request.auth.uid, shelf.ownerId)
+                   && shelf.visibility in ['friends', 'public']
+                   && shelf.autoShareActivity == true
+                   && book.ownerId == shelf.ownerId
+                   && book.shelfId == shelfId
+                   && book.activityGeneration
+                        == resource.data.activityGeneration
+                   && (
+                     resource.data.type in ['started', 'finished']
+                     || (resource.data.type == 'added' && book.isOwned == true)
+                   );
+          }
+
+          function validActivityCreate() {
+            let shelf = getAfter(shelfPath()).data;
+            let book = getAfter(bookPath()).data;
+            return validActivityShape(request.resource.data)
+                   && activityShelfIsShared(shelf)
+                   && book.ownerId == request.auth.uid
+                   && book.shelfId == shelfId
+                   && book.lastActivityId == activityId
+                   && book.activityGeneration
+                        == request.resource.data.activityGeneration
+                   && (
+                     request.resource.data.type in ['started', 'finished']
+                     || (
+                       request.resource.data.type == 'added'
+                       && book.isOwned == true
+                     )
+                   )
+                   && (validAddedActivity() || validStatusActivity());
+          }
+
+          allow read: if canReadActivity();
+
+          allow create: if activeAccount() && request.auth != null
+                        && validActivityCreate();
+
+          allow update, delete: if false;
+        }
+      }
+    }
+
+    match /circlePosts/{postId} {
+      function validPost(data) {
+        return moderationUnlocked('post--' + postId)
+               && contentAllowed(data.text)
+               && data.keys().hasOnly([
+                 'authorId', 'text', 'attachedBookOwnerId',
+                 'attachedShelfId', 'attachedBookId', 'attachedTitle',
+                 'attachedAuthor', 'attachedCoverUrl', 'photoPath', 'createdAt',
+                 'updatedAt'
+               ])
+                && data.keys().hasAll([
+                     'authorId', 'text', 'attachedBookOwnerId',
+                     'attachedShelfId', 'attachedBookId', 'attachedTitle',
+                     'attachedAuthor', 'attachedCoverUrl', 'createdAt',
+                     'updatedAt'
+                  ])
+               && data.authorId is string
+               && data.text is string
+                && data.text.size() <= 5000
+                && (
+                  data.text.matches('.*\\S.*')
+                  || data.get('photoPath', null) != null
+                )
+                && data.createdAt is timestamp
+                && data.updatedAt is timestamp
+                && validCirclePhoto(
+                     data.get('photoPath', null), data.authorId, postId
+                   )
+                && validCircleAttachment(data, data.authorId);
+      }
+
+      function canReadPost(data) {
+        return request.auth != null
+               && (
+                 request.auth.uid == data.authorId
+                 || (
+                   readersAreFriends(request.auth.uid, data.authorId)
+                   && !readersBlocked(request.auth.uid, data.authorId)
+                 )
+               );
+      }
+
+      function ownsDraftPostId() {
+        return request.auth != null
+               && exists(/databases/$(database)/documents/users/$(request.auth.uid)/circleDrafts/newPost)
+               && get(/databases/$(database)/documents/users/$(request.auth.uid)/circleDrafts/newPost).data.postId == postId;
+      }
+
+      allow get: if canReadPost(resource.data)
+                 || (
+                   !exists(/databases/$(database)/documents/circlePosts/$(postId))
+                   && ownsDraftPostId()
+                 );
+      allow list: if canReadPost(resource.data);
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == request.resource.data.authorId
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.updatedAt == request.time
+                    && validPost(request.resource.data);
+      allow update: if activeAccount() && request.auth != null
+                    && request.auth.uid == resource.data.authorId
+                    && request.resource.data.authorId == resource.data.authorId
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.updatedAt == request.time
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly([
+                           'text', 'attachedBookOwnerId', 'attachedShelfId',
+                            'attachedBookId', 'attachedTitle', 'attachedAuthor',
+                            'attachedCoverUrl', 'photoPath', 'updatedAt'
+                         ])
+                    && validPost(request.resource.data);
+      allow delete: if activeAccount() && request.auth != null
+                    && request.auth.uid == resource.data.authorId;
+
+      match /likes/{userId} {
+        function parentPost() {
+          return get(/databases/$(database)/documents/circlePosts/$(postId)).data;
+        }
+
+        allow read: if canReadPost(parentPost());
+        allow create: if activeAccount() && request.auth != null
+                      && request.auth.uid == userId
+                      && canReadPost(parentPost())
+                      && request.resource.data.keys().hasOnly([
+                           'userId', 'createdAt'
+                         ])
+                      && request.resource.data.userId == userId
+                      && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if activeAccount() && request.auth != null
+                      && (
+                        request.auth.uid == userId
+                        || request.auth.uid == parentPost().authorId
+                      );
+      }
+
+      match /comments/{commentId} {
+        function parentPost() {
+          return get(/databases/$(database)/documents/circlePosts/$(postId)).data;
+        }
+
+        function validComment(data) {
+          let profile = get(/databases/$(database)/documents/readerProfiles/$(data.authorId)).data;
+          return data.keys().hasOnly([
+                   'authorId', 'authorDisplayName', 'authorPhotoUrl', 'text',
+                   'createdAt', 'updatedAt'
+                 ])
+                 && data.authorId is string
+                 && data.authorDisplayName is string
+                 && data.authorDisplayName.size() > 0
+                 && data.authorDisplayName.size() <= 80
+                 && (data.authorPhotoUrl == null
+                     || (data.authorPhotoUrl is string
+                         && data.authorPhotoUrl.size() <= 500))
+                 && data.text is string
+                 && data.text.size() > 0
+                 && data.text.size() <= 1000
+                 && data.text.matches('.*\\S.*')
+                 && data.createdAt is timestamp
+                 && data.updatedAt is timestamp
+                 && profile.ownerId == data.authorId
+                 && profile.displayName == data.authorDisplayName
+                 && profile.photoUrl == data.authorPhotoUrl;
+        }
+
+        allow read: if canReadPost(parentPost());
+        allow create: if activeAccount() && request.auth != null
+                      && request.auth.uid == request.resource.data.authorId
+                      && canReadPost(parentPost())
+                      && request.resource.data.createdAt == request.time
+                      && request.resource.data.updatedAt == request.time
+                      && contentAllowed(request.resource.data.text)
+                      && moderationUnlocked('post--' + postId + '--comment--' + commentId)
+                      && validComment(request.resource.data);
+        allow update: if activeAccount() && request.auth != null
+                      && request.auth.uid == resource.data.authorId
+                      && request.resource.data.authorId == resource.data.authorId
+                      && request.resource.data.authorDisplayName
+                           == resource.data.authorDisplayName
+                      && request.resource.data.authorPhotoUrl
+                           == resource.data.authorPhotoUrl
+                      && request.resource.data.createdAt == resource.data.createdAt
+                      && request.resource.data.updatedAt == request.time
+                      && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['text', 'updatedAt'])
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 1000
+                      && request.resource.data.text.matches('.*\\S.*')
+                      && contentAllowed(request.resource.data.text);
+        allow delete: if activeAccount() && request.auth != null
+                      && (
+                        request.auth.uid == resource.data.authorId
+                        || request.auth.uid == parentPost().authorId
+                      );
+      }
+    }
+
+    match /circleReviews/{reviewId} {
+      function validRating(rating) {
+        return rating == null
+               || (rating is int && rating >= 1 && rating <= 5);
+      }
+
+      function sourceBookPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.shelfId)/books/$(data.bookId);
+      }
+
+      function sourceShelfPath(data) {
+        return /databases/$(database)/documents/shelves/$(data.shelfId);
+      }
+
+      function sourceMatchesAfter(data) {
+        let book = getAfter(sourceBookPath(data)).data;
+        let shelf = getAfter(sourceShelfPath(data)).data;
+        return existsAfter(sourceBookPath(data))
+               && existsAfter(sourceShelfPath(data))
+               && shelf.ownerId == data.authorId
+               && book.ownerId == data.authorId
+               && book.shelfId == data.shelfId
+               && book.createdAt == data.bookCreatedAt
+               && book.title == data.title
+               && book.author == data.bookAuthor
+               && book.coverUrl == data.coverUrl;
+      }
+
+      function validReview(data) {
+        return moderationUnlocked('review--' + reviewId)
+               && contentAllowed(data.text)
+               && data.keys().hasOnly([
+                 'authorId', 'shelfId', 'bookId', 'bookCreatedAt', 'title',
+                 'bookAuthor', 'coverUrl', 'text', 'rating', 'createdAt',
+                 'updatedAt'
+               ])
+               && data.keys().hasAll([
+                    'authorId', 'shelfId', 'bookId', 'bookCreatedAt', 'title',
+                    'bookAuthor', 'coverUrl', 'text', 'rating', 'createdAt',
+                    'updatedAt'
+                  ])
+               && reviewId == data.authorId + '--' + data.bookId
+               && data.authorId is string
+               && data.shelfId is string
+               && data.shelfId.size() > 0
+               && data.bookId is string
+               && data.bookId.size() > 0
+               && data.bookCreatedAt is timestamp
+               && data.title is string
+               && data.title.size() > 0
+               && data.title.size() <= 160
+               && data.bookAuthor is string
+               && data.bookAuthor.size() > 0
+               && data.bookAuthor.size() <= 120
+               && (data.coverUrl == null
+                   || (data.coverUrl is string
+                       && data.coverUrl.size() <= 500))
+               && data.text is string
+               && data.text.size() > 0
+               && data.text.size() <= 5000
+               && data.text.matches('.*\\S.*')
+               && validRating(data.rating)
+               && data.createdAt is timestamp
+               && data.updatedAt is timestamp
+               && sourceMatchesAfter(data);
+      }
+
+      function canReadReview(data) {
+        let shelf = get(sourceShelfPath(data)).data;
+        let book = get(sourceBookPath(data)).data;
+        return request.auth != null
+               && (
+                 request.auth.uid == data.authorId
+                 || (
+                   request.auth.uid != data.authorId
+                   && readersAreFriends(request.auth.uid, data.authorId)
+                   && !readersBlocked(request.auth.uid, data.authorId)
+                   && shelf.ownerId == data.authorId
+                   && shelf.visibility in ['friends', 'public']
+                   && book.ownerId == data.authorId
+                   && book.shelfId == data.shelfId
+                   && book.createdAt == data.bookCreatedAt
+                   && book.title == data.title
+                   && book.author == data.bookAuthor
+                   && book.coverUrl == data.coverUrl
+                 )
+               );
+      }
+
+      function ownsDraftReviewId() {
+        let draftPath = /databases/$(database)/documents/users/$(request.auth.uid)/reviewDrafts/$(reviewId);
+        return request.auth != null
+               && exists(draftPath)
+               && get(draftPath).data.reviewId == reviewId;
+      }
+
+      function canObserveMissingReview() {
+        let parts = reviewId.split('--');
+        return activeAccount()
+               && parts.size() == 2
+               && parts[0].size() > 0
+               && parts[1].size() > 0
+               && (request.auth.uid == parts[0]
+                   || (readersAreFriends(request.auth.uid, parts[0])
+                       && !readersBlocked(request.auth.uid, parts[0])));
+      }
+
+      allow get: if (
+                   exists(/databases/$(database)/documents/circleReviews/$(reviewId))
+                   && canReadReview(resource.data)
+                 )
+                 || (
+                   !exists(/databases/$(database)/documents/circleReviews/$(reviewId))
+                   && (ownsDraftReviewId() || canObserveMissingReview())
+                 );
+      allow list: if request.auth != null
+                  && request.auth.uid == resource.data.authorId;
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == request.resource.data.authorId
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.updatedAt == request.time
+                    && validReview(request.resource.data);
+      allow update: if activeAccount() && request.auth != null
+                    && request.auth.uid == resource.data.authorId
+                    && request.resource.data.authorId == resource.data.authorId
+                    && request.resource.data.bookId == resource.data.bookId
+                    && request.resource.data.bookCreatedAt
+                         == resource.data.bookCreatedAt
+                    && request.resource.data.createdAt
+                         == resource.data.createdAt
+                    && request.resource.data.updatedAt == request.time
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly([
+                           'shelfId', 'title', 'bookAuthor', 'coverUrl',
+                           'text', 'rating', 'updatedAt'
+                         ])
+                    && validReview(request.resource.data);
+      allow delete: if activeAccount() && request.auth != null
+                    && request.auth.uid == resource.data.authorId;
+
+      match /likes/{userId} {
+        function parentReview() {
+          return get(/databases/$(database)/documents/circleReviews/$(reviewId)).data;
+        }
+
+        allow read: if canReadReview(parentReview());
+        allow create: if activeAccount() && request.auth != null
+                      && request.auth.uid == userId
+                      && canReadReview(parentReview())
+                      && request.resource.data.keys().hasOnly([
+                           'userId', 'createdAt'
+                         ])
+                      && request.resource.data.userId == userId
+                      && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if activeAccount() && request.auth != null
+                      && (
+                        request.auth.uid == userId
+                        || request.auth.uid == parentReview().authorId
+                      );
+      }
+
+      match /comments/{commentId} {
+        function parentReview() {
+          return get(/databases/$(database)/documents/circleReviews/$(reviewId)).data;
+        }
+
+        function validComment(data) {
+          let profile = get(/databases/$(database)/documents/readerProfiles/$(data.authorId)).data;
+          return data.keys().hasOnly([
+                   'authorId', 'authorDisplayName', 'authorPhotoUrl', 'text',
+                   'createdAt', 'updatedAt'
+                 ])
+                 && data.authorId is string
+                 && data.authorDisplayName is string
+                 && data.authorDisplayName.size() > 0
+                 && data.authorDisplayName.size() <= 80
+                 && (data.authorPhotoUrl == null
+                     || (data.authorPhotoUrl is string
+                         && data.authorPhotoUrl.size() <= 500))
+                 && data.text is string
+                 && data.text.size() > 0
+                 && data.text.size() <= 1000
+                 && data.text.matches('.*\\S.*')
+                 && data.createdAt is timestamp
+                 && data.updatedAt is timestamp
+                 && profile.ownerId == data.authorId
+                 && profile.displayName == data.authorDisplayName
+                 && profile.photoUrl == data.authorPhotoUrl;
+        }
+
+        allow read: if canReadReview(parentReview());
+        allow create: if activeAccount() && request.auth != null
+                      && request.auth.uid == request.resource.data.authorId
+                      && canReadReview(parentReview())
+                      && request.resource.data.createdAt == request.time
+                      && request.resource.data.updatedAt == request.time
+                      && contentAllowed(request.resource.data.text)
+                      && moderationUnlocked('review--' + reviewId + '--comment--' + commentId)
+                      && validComment(request.resource.data);
+        allow update: if activeAccount() && request.auth != null
+                      && request.auth.uid == resource.data.authorId
+                      && request.resource.data.authorId == resource.data.authorId
+                      && request.resource.data.authorDisplayName
+                           == resource.data.authorDisplayName
+                      && request.resource.data.authorPhotoUrl
+                           == resource.data.authorPhotoUrl
+                      && request.resource.data.createdAt == resource.data.createdAt
+                      && request.resource.data.updatedAt == request.time
+                      && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['text', 'updatedAt'])
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 1000
+                      && request.resource.data.text.matches('.*\\S.*')
+                      && contentAllowed(request.resource.data.text);
+        allow delete: if activeAccount() && request.auth != null
+                      && (
+                        request.auth.uid == resource.data.authorId
+                        || request.auth.uid == parentReview().authorId
+                      );
+      }
+    }
+
+    match /users/{userId}/libraryBookIsbns/{isbn} {
+      function validIsbnIndex(data) {
+        return data.keys().hasOnly([
+                 'ownerId', 'shelfId', 'bookId', 'title', 'shelfName',
+                 'createdAt'
+               ])
+               && data.ownerId == userId
+               && data.shelfId is string
+               && data.bookId == isbn
+               && data.title is string
+               && data.title.size() > 0
+               && data.title.size() <= 160
+               && data.title.matches('.*\\S.*')
+               && data.shelfName is string
+               && data.shelfName.size() > 0
+               && data.shelfName.size() <= 60
+               && data.createdAt == request.time;
+      }
+
+      function matchingBook(shelfId, bookId) {
+        return existsAfter(/databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId))
+               && getAfter(/databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId)).data.ownerId == userId
+               && getAfter(/databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId)).data.isbn == isbn
+               && getAfter(/databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId)).data.title == request.resource.data.title;
+      }
+
+      function operationPath() {
+        return /databases/$(database)/documents/users/$(userId)/shelfOperations/$(resource.data.shelfId);
+      }
+
+      function validMoveUpdate() {
+        return exists(operationPath())
+               && existsAfter(operationPath())
+               && get(operationPath()).data.status == 'running'
+               && getAfter(operationPath()).data.status == 'running'
+               && getAfter(operationPath()).data.mode == 'move'
+               && getAfter(operationPath()).data.sourceShelfId == resource.data.shelfId
+               && getAfter(operationPath()).data.destinationShelfId
+                    == request.resource.data.shelfId
+               && getAfter(operationPath()).data.currentBookId == isbn
+               && getAfter(operationPath()).data.currentBookIsbn == isbn
+               && request.resource.data.ownerId == resource.data.ownerId
+               && request.resource.data.bookId == resource.data.bookId
+               && request.resource.data.title == resource.data.title
+               && request.resource.data.createdAt == resource.data.createdAt
+               && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['shelfId', 'shelfName'])
+               && get(/databases/$(database)/documents/shelves/$(request.resource.data.shelfId)).data.name
+                    == request.resource.data.shelfName
+               && !existsAfter(/databases/$(database)/documents/shelves/$(resource.data.shelfId)/books/$(isbn))
+               && matchingBook(request.resource.data.shelfId, isbn);
+      }
+
+      function singleBookMovePath() {
+        return /databases/$(database)/documents/users/$(userId)/bookMoves/$(getAfter(/databases/$(database)/documents/shelves/$(resource.data.shelfId)).data.lastBookMoveId);
+      }
+
+      function validSingleMoveUpdate() {
+        let move = getAfter(singleBookMovePath()).data;
+        return move.updatedAt == request.time
+               && move.sourceShelfId == resource.data.shelfId
+               && move.destinationShelfId == request.resource.data.shelfId
+               && move.bookId == resource.data.bookId
+               && move.isbn == isbn
+               && request.resource.data.ownerId == resource.data.ownerId
+               && request.resource.data.bookId == resource.data.bookId
+               && request.resource.data.title == resource.data.title
+               && request.resource.data.createdAt == resource.data.createdAt
+               && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['shelfId', 'shelfName'])
+               && get(/databases/$(database)/documents/shelves/$(request.resource.data.shelfId)).data.name
+                     == request.resource.data.shelfName;
+      }
+
+      function singleBookRemovalPath() {
+        return /databases/$(database)/documents/users/$(userId)/bookRemovals/$(getAfter(/databases/$(database)/documents/shelves/$(resource.data.shelfId)).data.lastBookRemovalId);
+      }
+
+      function validSingleRemovalDelete() {
+        let removal = getAfter(singleBookRemovalPath()).data;
+        return removal.updatedAt == request.time
+               && removal.ownerId == userId
+               && removal.shelfId == resource.data.shelfId
+               && removal.bookId == resource.data.bookId
+               && removal.isbn == isbn
+               && removal.title == resource.data.title
+               && removal.sourceBookCreatedAt == resource.data.createdAt
+               && !existsAfter(/databases/$(database)/documents/shelves/$(resource.data.shelfId)/books/$(resource.data.bookId));
+      }
+
+      function validRemoveDelete() {
+        return exists(operationPath())
+               && existsAfter(operationPath())
+               && getAfter(operationPath()).data.status == 'running'
+               && getAfter(operationPath()).data.mode == 'remove'
+               && getAfter(operationPath()).data.sourceShelfId == resource.data.shelfId
+               && getAfter(operationPath()).data.currentBookId == isbn
+               && getAfter(operationPath()).data.currentBookIsbn == isbn
+               && !existsAfter(/databases/$(database)/documents/shelves/$(resource.data.shelfId)/books/$(isbn));
+      }
+
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      allow create: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && isbn.matches('^(978|979)[0-9]{10}$')
+                    && validIsbnIndex(request.resource.data)
+                    && get(/databases/$(database)/documents/shelves/$(request.resource.data.shelfId)).data.ownerId == userId
+                    && (!get(/databases/$(database)/documents/shelves/$(request.resource.data.shelfId)).data.keys().hasAll(['mutationOperationId'])
+                        || get(/databases/$(database)/documents/shelves/$(request.resource.data.shelfId)).data.mutationOperationId == null)
+                    && get(/databases/$(database)/documents/shelves/$(request.resource.data.shelfId)).data.name == request.resource.data.shelfName
+                    && matchingBook(
+                         request.resource.data.shelfId,
+                         request.resource.data.bookId
+                       );
+
+      allow update: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && resource.data.ownerId == userId
+                    && ((
+                          getAfter(/databases/$(database)/documents/shelves/$(resource.data.shelfId)).data
+                            .diff(get(/databases/$(database)/documents/shelves/$(resource.data.shelfId)).data)
+                            .affectedKeys().hasAll(['lastBookMoveId'])
+                          && validSingleMoveUpdate()
+                        )
+                        || validMoveUpdate());
+
+      allow delete: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId
+                    && resource.data.ownerId == userId
+                    && ((
+                          getAfter(/databases/$(database)/documents/shelves/$(resource.data.shelfId)).data
+                            .diff(get(/databases/$(database)/documents/shelves/$(resource.data.shelfId)).data)
+                            .affectedKeys().hasAll(['lastBookRemovalId'])
+                          && validSingleRemovalDelete()
+                        )
+                        || validRemoveDelete());
+    }
+
+    // ── Posts (Circle feed) ────────────────────────────────────────────────
+    //
+    // Posts are publicly readable so unauthenticated viewers of /u/:username
+    // can also see the user's posts. Only the authenticated author can create
+    // a post for themselves; only the author can soft-delete or update their
+    // post. Reaction-driven count fields are exempted from the author-only
+    // update check by allowing any authenticated user to update *only* the
+    // count fields and totalReactions (used by FirestoreService.setReaction).
+    match /posts/{postId} {
+      allow read: if true;
+
+      allow create: if activeAccount() && request.auth != null
+                    && request.resource.data.authorId == request.auth.uid
+                    && request.resource.data.body is string
+                    && request.resource.data.body.size() > 0;
+
+      // Author can update/delete their own post (used for soft delete + edits).
+      // Any signed-in user can update reaction count fields only — enforced by
+      // checking that no other field is being mutated.
+      // The author can edit/soft-delete their own post. Any signed-in user
+      // can update reaction count fields *and* the replyCount counter via
+      // transactional reply create/delete — enforced by checking that no
+      // other field is being mutated.
+      allow update: if activeAccount() && request.auth != null
+                    && (
+                      request.auth.uid == resource.data.authorId
+                      || request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly([
+                             'totalReactions',
+                             'likeCount',
+                             'touchedCount',
+                             'funnyCount',
+                             'cheerCount',
+                             'replyCount',
+                           ])
+                    );
+
+      allow delete: if activeAccount() && request.auth != null
+                    && request.auth.uid == resource.data.authorId;
+
+      // ── Reactions sub-collection ──────────────────────────────────────
+      // Reaction doc id is the reactor's uid, so we can validate ownership
+      // directly against the path without needing a get() on the parent.
+      match /reactions/{reactorUid} {
+        allow read: if true;
+        allow write: if activeAccount() && request.auth != null
+                     && request.auth.uid == reactorUid;
+      }
+
+      // ── Replies sub-collection (post comments) ───────────────────────
+      // Replies inherit the post's public visibility. Anyone signed in can
+      // create their own reply; only the reply author can edit (used for
+      // soft delete which sets isDeleted=true and blanks the body).
+      match /replies/{replyId} {
+        allow read: if true;
+        allow create: if activeAccount() && request.auth != null
+                      && request.resource.data.authorId == request.auth.uid
+                      && request.resource.data.body is string
+                      && request.resource.data.body.size() > 0
+                      && request.resource.data.body.size() <= 500;
+        allow update: if activeAccount() && request.auth != null
+                      && request.auth.uid == resource.data.authorId;
+        allow delete: if false; // soft delete only
+      }
+    }
+
+    // ── Leaf ledger (per-user transaction history) ────────────────────────
+    //
+    // Append-only ledger written by FirestoreService inside transactions
+    // (post create, reaction reward, etc). Owner can read their own history;
+    // any signed-in user can write to another user's ledger because
+    // setReaction needs to write a `reaction_received` entry into the post
+    // *author's* ledger, not the reactor's own.
+    // ── My Room placements ────────────────────────────────────────────
+    //
+    // Each user's purchased furniture sits under
+    // users/{uid}/roomPlacements/{id}. All rooms are publicly visible
+    // by default so Discover's "Rooms to Visit" carousel and the
+    // RoomVisitorScreen deep link can render any user's room without
+    // auth, matching how public shelves already work. Only the owner
+    // can write their own room.
+    match /users/{userId}/roomPlacements/{placementId} {
+      allow read: if true;
+      allow write: if activeAccount() && request.auth != null
+                    && request.auth.uid == userId;
+    }
+
+    // ── Room compliments (visitor-written reactions on a room) ────────
+    //
+    // Doc id is the visitor's uid, so a visitor can only write their
+    // own compliment and can only leave one per room (swapping types
+    // overwrites). Self-compliments are blocked by the userId !=
+    // visitorUid check. Counts are denormalised onto the owner's user
+    // doc via the `roomComplimentCounts` whitelist above.
+    match /users/{userId}/roomCompliments/{visitorUid} {
+      allow read: if true;
+      allow write: if activeAccount() && request.auth != null
+                    && request.auth.uid == visitorUid
+                    && userId != visitorUid;
+    }
+
+    // ── Room visits (owner sees who's been by) ────────────────────────
+    //
+    // Doc id is the visitor's uid so repeat visits dedupe into a
+    // single row. Owner-only read protects privacy (visitor logs
+    // leak social graph signals). Visitors can only create/update
+    // their own record; self-visits are blocked.
+    match /users/{ownerId}/roomVisits/{visitorUid} {
+      allow read: if request.auth != null
+                    && request.auth.uid == ownerId;
+      allow create, update: if activeAccount() && request.auth != null
+                             && request.auth.uid == visitorUid
+                             && ownerId != visitorUid;
+    }
+
+    // ── Room tip daily counter (leaf-gated tipping cap) ───────────────
+    //
+    // `{tipId}` is `{visitorUid}_YYYYMMDD` so each visitor gets one
+    // doc per owner per day. The regex gate restricts write access to
+    // the visitor named in the doc id, which matches the transaction
+    // logic in RoomRepository.tipLeaf — no other user can ever touch
+    // someone else's daily counter.
+    match /users/{userId}/roomTipDaily/{tipId} {
+      allow read: if request.auth != null
+                    && tipId.matches(request.auth.uid + '_.*');
+      allow write: if activeAccount() && request.auth != null
+                    && tipId.matches(request.auth.uid + '_.*')
+                    && userId != request.auth.uid;
+    }
+
+    match /users/{userId}/leafLedger/{entryId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if activeAccount() && request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // ── Books collection-group (Discover search) ───────────────────────────
+    //
+    // Required for owner-filtered collectionGroup('books') library queries.
+    // Nested library-book writes already enforce an immutable ownerId matching
+    // the authenticated shelf owner. Checking that field directly lets rules
+    // prove owner-only list access without dereferencing shelfId on unrelated
+    // root catalog books, which share the collection ID.
+    match /{path=**}/books/{bookId} {
+      allow read: if request.auth != null
+                      && resource.data.ownerId is string
+                      && request.auth.uid == resource.data.ownerId;
+    }
+  }
+}
+

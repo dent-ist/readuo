@@ -1,0 +1,4 @@
+(node:5564) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"status":200,"name":"projects/readuo-b2f24/databases/(default)/collectionGroups/books/fields/coverStoragePath","indexConfig":{"indexes":[{"queryScope":"COLLECTION","fields":[{"fieldPath":"coverStoragePath","order":"ASCENDING"}],"state":"CREATING"},{"queryScope":"COLLECTION","fields":[{"fieldPath":"coverStoragePath","order":"DESCENDING"}],"state":"CREATING"},{"queryScope":"COLLECTION_GROUP","fields":[{"fieldPath":"coverStoragePath","order":"ASCENDING"}],"state":"CREATING"}],"ancestorField":"projects/readuo-b2f24/databases/(default)/collectionGroups/__default__/fields/*"}}
+{"status":200,"softDeletePolicy":{"retentionDurationSeconds":"0"}}

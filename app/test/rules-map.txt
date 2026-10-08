@@ -1,0 +1,143 @@
+18:      allow read: if request.auth != null && request.auth.uid == userId;
+19:      allow create, update: if request.auth != null && request.auth.uid == userId
+28:      allow read, delete: if request.auth != null && request.auth.uid == userId;
+29:      allow create, update: if request.auth != null && request.auth.uid == userId
+40:      allow read: if request.auth != null && request.auth.uid == userId;
+41:      allow update: if request.auth != null && request.auth.uid == userId
+48:      allow read: if request.auth != null
+50:      allow get: if request.auth != null && requestId.matches('^' + request.auth.uid + '--[a-f0-9]{32}$');
+51:      allow create: if request.auth != null
+63:      allow update: if isModerator()
+171:    match /readerProfiles/{userId} {
+198:      allow get: if request.auth != null
+201:      allow list: if false;
+202:      allow create: if request.auth != null
+209:      allow update: if request.auth != null
+219:      allow delete: if false;
+222:    match /inviteCodes/{code} {
+231:      allow get: if request.auth != null
+234:      allow list: if false;
+235:      allow create: if request.auth != null
+240:      allow update, delete: if false;
+260:      allow get: if request.auth != null
+265:      allow list: if request.auth != null
+268:      allow create: if request.auth != null
+291:      allow delete: if request.auth != null
+294:      allow update: if false;
+317:      allow get: if request.auth != null
+321:      allow list: if request.auth != null
+323:      allow create: if request.auth != null
+335:      allow delete: if request.auth != null
+337:      allow update: if false;
+361:      allow read: if request.auth != null && request.auth.uid == blockerId;
+362:      allow create: if request.auth != null
+372:      allow delete: if request.auth != null && request.auth.uid == blockerId;
+373:      allow update: if false;
+383:      allow read: if true;
+387:      allow create: if request.auth != null
+404:      allow update: if request.auth != null
+421:      allow delete: if false;
+436:      allow read: if request.auth != null
+439:      allow create: if request.auth != null
+442:      allow update: if request.auth != null
+449:      allow delete: if false;
+477:      allow get: if request.auth != null
+480:      allow list: if false;
+481:      allow create: if request.auth != null
+484:      allow update: if request.auth != null
+488:      allow delete: if request.auth != null
+543:      allow get: if request.auth != null
+545:      allow list: if false;
+546:      allow create: if request.auth != null
+549:      allow update: if request.auth != null
+556:      allow delete: if request.auth != null
+568:      allow read: if request.auth != null
+571:      allow create: if request.auth != null
+574:      allow delete: if request.auth != null
+577:      allow update: if false;
+587:      allow read: if request.auth != null
+590:      allow create: if request.auth != null
+594:      allow delete: if request.auth != null
+597:      allow update: if false;
+602:      allow read: if true;
+603:      allow write: if request.auth != null;
+815:      allow read: if request.auth != null && request.auth.uid == userId;
+816:      allow create: if request.auth != null
+827:      allow update: if request.auth != null
+842:      allow delete: if false;
+984:      allow read: if request.auth != null && request.auth.uid == userId;
+985:      allow create: if request.auth != null
+989:      allow update: if false;
+990:      allow delete: if false;
+1087:      allow read: if request.auth != null && request.auth.uid == userId;
+1088:      allow create: if request.auth != null
+1091:      allow update: if false;
+1092:      allow delete: if false;
+1110:      allow read: if request.auth != null;
+1111:      allow create, update: if request.auth != null
+1118:      allow delete: if request.auth != null
+1304:      allow read: if request.auth != null
+1306:      allow read: if canReadSharedShelf(resource.data);
+1308:      allow create: if request.auth != null
+1319:      allow update: if request.auth != null
+1355:      allow delete: if request.auth != null
+1651:        allow read: if request.auth != null
+1653:        allow read: if canReadSharedShelf(parentShelf().data);
+1655:        allow create: if request.auth != null
+1693:        allow update: if request.auth != null
+1705:        allow delete: if request.auth != null
+1829:          allow read: if canReadActivity();
+1831:          allow create: if request.auth != null
+1834:          allow update, delete: if false;
+1887:      allow get: if canReadPost(resource.data)
+1892:      allow list: if canReadPost(resource.data);
+1893:      allow create: if request.auth != null
+1898:      allow update: if request.auth != null
+1910:      allow delete: if request.auth != null
+1918:        allow read: if canReadPost(parentPost());
+1919:        allow create: if request.auth != null
+1927:        allow update: if false;
+1928:        allow delete: if request.auth != null
+1964:        allow read: if canReadPost(parentPost());
+1965:        allow create: if request.auth != null
+1973:        allow update: if request.auth != null
+1989:        allow delete: if request.auth != null
+2093:      allow get: if (
+2101:      allow list: if request.auth != null
+2103:      allow create: if request.auth != null
+2108:      allow update: if request.auth != null
+2123:      allow delete: if request.auth != null
+2131:        allow read: if canReadReview(parentReview());
+2132:        allow create: if request.auth != null
+2140:        allow update: if false;
+2141:        allow delete: if request.auth != null
+2177:        allow read: if canReadReview(parentReview());
+2178:        allow create: if request.auth != null
+2186:        allow update: if request.auth != null
+2202:        allow delete: if request.auth != null
+2311:      allow read: if request.auth != null && request.auth.uid == userId;
+2313:      allow create: if request.auth != null
+2326:      allow update: if request.auth != null
+2337:      allow delete: if request.auth != null
+2358:      allow read: if true;
+2360:      allow create: if request.auth != null
+2372:      allow update: if request.auth != null
+2386:      allow delete: if request.auth != null
+2393:        allow read: if true;
+2394:        allow write: if request.auth != null
+2403:        allow read: if true;
+2404:        allow create: if request.auth != null
+2409:        allow update: if request.auth != null
+2411:        allow delete: if false; // soft delete only
+2431:      allow read: if true;
+2432:      allow write: if request.auth != null
+2444:      allow read: if true;
+2445:      allow write: if request.auth != null
+2457:      allow read: if request.auth != null
+2459:      allow create, update: if request.auth != null
+2472:      allow read: if request.auth != null
+2474:      allow write: if request.auth != null
+2480:      allow read: if request.auth != null && request.auth.uid == userId;
+2481:      allow create: if request.auth != null;
+2482:      allow update, delete: if false;
+2493:      allow read: if request.auth != null

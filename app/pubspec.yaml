@@ -1,0 +1,44 @@
+name: readuo
+description: Readuo Android authentication and personal library prototype.
+publish_to: none
+version: 1.22.0+35
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  cloud_firestore: 6.8.0
+  cupertino_icons: ^1.0.8
+  firebase_auth: 6.5.7
+  firebase_core: 4.13.0
+  firebase_storage: ^13.4.6
+  cloud_functions: ^6.3.0
+  firebase_messaging: ^16.3.0
+  app_settings: ^6.1.1
+  shared_preferences: ^2.5.4
+  flutter:
+    sdk: flutter
+  google_sign_in: ^7.2.0
+  http: ^1.6.0
+  image_picker: ^1.2.3
+  lucide_icons_flutter: 3.1.20
+  mobile_scanner: 7.4.2
+  share_plus: 11.1.0
+  cached_network_image: 3.4.1
+  flutter_cache_manager: 3.4.1
+
+dev_dependencies:
+  integration_test:
+    sdk: flutter
+  shared_preferences_platform_interface: ^2.4.2
+  flutter_test:
+    sdk: flutter
+
+dependency_overrides:
+  firebase_core_web: 3.10.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/brand/readuo-logo.png
+    - assets/firebase-web-config.json

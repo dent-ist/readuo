@@ -1,0 +1,525 @@
+{
+  "status": "success",
+  "result": [
+    {
+      "platform": "gcfv2",
+      "id": "checkContent",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "callableTrigger": {},
+      "entryPoint": "checkContent",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "checkContent/function-source.zip",
+          "generation": "1789977505011580"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/checkContent",
+        "FUNCTION_TARGET": "checkContent",
+        "LOG_EXECUTION_ID": "true",
+        "FUNCTION_SIGNATURE_TYPE": "http"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/checkContent",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 10,
+      "concurrency": 80,
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "deployment-callable": "true",
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875"
+      },
+      "runServiceId": "checkcontent",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "deliverNotificationPush",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "eventTrigger": {
+        "eventType": "google.cloud.firestore.document.v1.created",
+        "retry": true,
+        "eventFilters": {
+          "database": "(default)",
+          "namespace": "(default)"
+        },
+        "eventFilterPathPatterns": {
+          "document": "users/{userId}/notifications/{notificationId}"
+        },
+        "region": "nam5"
+      },
+      "entryPoint": "deliverNotificationPush",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "deliverNotificationPush/function-source.zip",
+          "generation": "1789977766356153"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/deliverNotificationPush",
+        "FUNCTION_SIGNATURE_TYPE": "cloudevent",
+        "FUNCTION_TARGET": "deliverNotificationPush",
+        "LOG_EXECUTION_ID": "true"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/deliverNotificationPush",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 3,
+      "concurrency": 80,
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875"
+      },
+      "runServiceId": "delivernotificationpush",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "listReports",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "callableTrigger": {},
+      "entryPoint": "listReports",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "listReports/function-source.zip",
+          "generation": "1789977505012720"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/listReports",
+        "FUNCTION_TARGET": "listReports",
+        "LOG_EXECUTION_ID": "true",
+        "FUNCTION_SIGNATURE_TYPE": "http"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/listReports",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 10,
+      "concurrency": 80,
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "deployment-callable": "true",
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875"
+      },
+      "runServiceId": "listreports",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "moderationAction",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "callableTrigger": {},
+      "entryPoint": "moderationAction",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "moderationAction/function-source.zip",
+          "generation": "1789977505038543"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/moderationAction",
+        "FUNCTION_TARGET": "moderationAction",
+        "LOG_EXECUTION_ID": "true",
+        "FUNCTION_SIGNATURE_TYPE": "http"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/moderationAction",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 10,
+      "concurrency": 80,
+      "labels": {
+        "deployment-callable": "true",
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+        "deployment-tool": "cli-firebase"
+      },
+      "runServiceId": "moderationaction",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "notifyFriendRequest",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "eventTrigger": {
+        "eventType": "google.cloud.firestore.document.v1.created",
+        "retry": true,
+        "eventFilters": {
+          "database": "(default)",
+          "namespace": "(default)"
+        },
+        "eventFilterPathPatterns": {
+          "document": "friendRequests/{pairId}"
+        },
+        "region": "nam5"
+      },
+      "entryPoint": "notifyFriendRequest",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "notifyFriendRequest/function-source.zip",
+          "generation": "1789977717529300"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/notifyFriendRequest",
+        "FUNCTION_SIGNATURE_TYPE": "cloudevent",
+        "FUNCTION_TARGET": "notifyFriendRequest",
+        "LOG_EXECUTION_ID": "true"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/notifyFriendRequest",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 3,
+      "concurrency": 80,
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875"
+      },
+      "runServiceId": "notifyfriendrequest",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "notifyPostComment",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "eventTrigger": {
+        "eventType": "google.cloud.firestore.document.v1.created",
+        "retry": true,
+        "eventFilters": {
+          "database": "(default)",
+          "namespace": "(default)"
+        },
+        "eventFilterPathPatterns": {
+          "document": "circlePosts/{contentId}/comments/{interactionId}"
+        },
+        "region": "nam5"
+      },
+      "entryPoint": "notifyPostComment",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "notifyPostComment/function-source.zip",
+          "generation": "1789977766382000"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/notifyPostComment",
+        "FUNCTION_SIGNATURE_TYPE": "cloudevent",
+        "FUNCTION_TARGET": "notifyPostComment",
+        "LOG_EXECUTION_ID": "true"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/notifyPostComment",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 3,
+      "concurrency": 80,
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875"
+      },
+      "runServiceId": "notifypostcomment",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "notifyPostLike",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "eventTrigger": {
+        "eventType": "google.cloud.firestore.document.v1.created",
+        "retry": true,
+        "eventFilters": {
+          "namespace": "(default)",
+          "database": "(default)"
+        },
+        "eventFilterPathPatterns": {
+          "document": "circlePosts/{contentId}/likes/{interactionId}"
+        },
+        "region": "nam5"
+      },
+      "entryPoint": "notifyPostLike",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "notifyPostLike/function-source.zip",
+          "generation": "1789977766397179"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/notifyPostLike",
+        "FUNCTION_SIGNATURE_TYPE": "cloudevent",
+        "FUNCTION_TARGET": "notifyPostLike",
+        "LOG_EXECUTION_ID": "true"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/notifyPostLike",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 3,
+      "concurrency": 80,
+      "labels": {
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+        "deployment-tool": "cli-firebase"
+      },
+      "runServiceId": "notifypostlike",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "notifyRequestAccepted",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "eventTrigger": {
+        "eventType": "google.cloud.firestore.document.v1.created",
+        "retry": true,
+        "eventFilters": {
+          "database": "(default)",
+          "namespace": "(default)"
+        },
+        "eventFilterPathPatterns": {
+          "document": "friendships/{pairId}"
+        },
+        "region": "nam5"
+      },
+      "entryPoint": "notifyRequestAccepted",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "notifyRequestAccepted/function-source.zip",
+          "generation": "1789977766410007"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/notifyRequestAccepted",
+        "FUNCTION_SIGNATURE_TYPE": "cloudevent",
+        "FUNCTION_TARGET": "notifyRequestAccepted",
+        "LOG_EXECUTION_ID": "true"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/notifyRequestAccepted",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 3,
+      "concurrency": 80,
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875"
+      },
+      "runServiceId": "notifyrequestaccepted",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "notifyReviewComment",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "eventTrigger": {
+        "eventType": "google.cloud.firestore.document.v1.created",
+        "retry": true,
+        "eventFilters": {
+          "database": "(default)",
+          "namespace": "(default)"
+        },
+        "eventFilterPathPatterns": {
+          "document": "circleReviews/{contentId}/comments/{interactionId}"
+        },
+        "region": "nam5"
+      },
+      "entryPoint": "notifyReviewComment",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "notifyReviewComment/function-source.zip",
+          "generation": "1789977766265047"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/notifyReviewComment",
+        "FUNCTION_SIGNATURE_TYPE": "cloudevent",
+        "FUNCTION_TARGET": "notifyReviewComment",
+        "LOG_EXECUTION_ID": "true"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/notifyReviewComment",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 3,
+      "concurrency": 80,
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875"
+      },
+      "runServiceId": "notifyreviewcomment",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "notifyReviewLike",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "eventTrigger": {
+        "eventType": "google.cloud.firestore.document.v1.created",
+        "retry": true,
+        "eventFilters": {
+          "database": "(default)",
+          "namespace": "(default)"
+        },
+        "eventFilterPathPatterns": {
+          "document": "circleReviews/{contentId}/likes/{interactionId}"
+        },
+        "region": "nam5"
+      },
+      "entryPoint": "notifyReviewLike",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "notifyReviewLike/function-source.zip",
+          "generation": "1789977766330709"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/notifyReviewLike",
+        "FUNCTION_SIGNATURE_TYPE": "cloudevent",
+        "FUNCTION_TARGET": "notifyReviewLike",
+        "LOG_EXECUTION_ID": "true"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/notifyReviewLike",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 3,
+      "concurrency": 80,
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875"
+      },
+      "runServiceId": "notifyreviewlike",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv2",
+      "id": "submitReport",
+      "project": "readuo-b2f24",
+      "region": "us-central1",
+      "callableTrigger": {},
+      "entryPoint": "submitReport",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-881895077363-us-central1",
+          "object": "submitReport/function-source.zip",
+          "generation": "1789977435634835"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"readuo-b2f24\",\"databaseURL\":\"https://readuo-b2f24-default-rtdb.firebaseio.com\",\"storageBucket\":\"readuo-b2f24.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "readuo-b2f24",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/readuo-b2f24/locations/us-central1/services/submitReport",
+        "FUNCTION_TARGET": "submitReport",
+        "LOG_EXECUTION_ID": "true"
+      },
+      "timeoutSeconds": 60,
+      "uri": "https://us-central1-readuo-b2f24.cloudfunctions.net/submitReport",
+      "serviceAccount": "881895077363-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "maxInstances": 10,
+      "concurrency": 80,
+      "labels": {
+        "firebase-functions-hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+        "deployment-tool": "cli-firebase",
+        "deployment-callable": "true"
+      },
+      "runServiceId": "submitreport",
+      "codebase": "default",
+      "hash": "ac2ee60a56c1a33324d68e9932ff2bad6fbed875",
+      "state": "ACTIVE"
+    }
+  ]
+}

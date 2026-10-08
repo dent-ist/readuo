@@ -1,0 +1,70 @@
+{
+  "states": [
+    {
+      "name": "circle-edge-general",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-edge-attachment",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-actions-attachment",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-edge-photo",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-edge-review",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-actions-review",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-edge-activity",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-edge-started",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-edge-finished",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-edge-batch",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "circle-batch-scrolled",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    }
+  ]
+}

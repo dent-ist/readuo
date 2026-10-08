@@ -1,0 +1,758 @@
+[
+  {
+    "id": "login",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "login-error",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "setup",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "setup-keyboard",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 299.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "setup-keyboard-actions",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 299.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "profile-photo",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "profile-photo-access",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "photo-access",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "terms",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "privacy",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "edit-profile",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "profile",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "profile-bottom",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "signout",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "account",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "support",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "support-message",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "friends",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "friends-empty",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "enter-code",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 299.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "invalid-code",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 299.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "request-preview",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "request-sent",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "requests",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "request-detail",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "sent-requests",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "blocked-users",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "unblock",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "friend-profile",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "profile-menu",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "remove-friend",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "block-friend",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "report",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "report-sent",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "moderation",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "report-detail",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "moderation-action",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "content-filtered",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "library-empty",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "create-shelf",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 299.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "library-books",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "filter-empty",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "sort-books",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "search-results",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "search-empty",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "shelf",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "shelf-empty",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "shelf-settings",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "private-confirm",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "delete-shelf",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "delete-shelf-confirm",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "move-all",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "book",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "reading-status",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "book-menu",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "move-book",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "remove-book",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "saved-book",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "explore-empty",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "explore-no-results",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "friend-shelf",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "friend-book",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "save-shelf",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "book-saved",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "unavailable",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "manual-possible-duplicate",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "offline-library",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "offline-book",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "offline-action",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "notifications-empty",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "notifications",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "notification-settings",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "notification-permission",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "circle-empty",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "feed-loading",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "network-error",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "circle",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "post-menu",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "post",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "comment-menu",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "own-comment-menu",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "edit-comment",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 299.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "delete-comment",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "save-error",
+    "error": null,
+    "physicalWidth": 360.0,
+    "physicalHeight": 640.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  }
+]

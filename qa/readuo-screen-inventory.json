@@ -1,0 +1,587 @@
+[
+  {
+    "id": "login",
+    "group": "01 시작과 로그인",
+    "title": "로그인"
+  },
+  {
+    "id": "login-error",
+    "group": "01 시작과 로그인",
+    "title": "로그인 실패"
+  },
+  {
+    "id": "setup",
+    "group": "01 시작과 로그인",
+    "title": "프로필 만들기"
+  },
+  {
+    "id": "profile-photo",
+    "group": "01 시작과 로그인",
+    "title": "프로필 사진 선택"
+  },
+  {
+    "id": "first-book",
+    "group": "01 시작과 로그인",
+    "title": "첫 책 추가 안내"
+  },
+  {
+    "id": "terms",
+    "group": "01 시작과 로그인",
+    "title": "이용 규칙"
+  },
+  {
+    "id": "privacy",
+    "group": "01 시작과 로그인",
+    "title": "공개 범위 안내"
+  },
+  {
+    "id": "circle",
+    "group": "02 Circle",
+    "title": "Circle 피드"
+  },
+  {
+    "id": "circle-empty",
+    "group": "02 Circle",
+    "title": "Circle 빈 상태"
+  },
+  {
+    "id": "compose",
+    "group": "02 Circle",
+    "title": "일반 게시물 작성"
+  },
+  {
+    "id": "compose-photo",
+    "group": "02 Circle",
+    "title": "사진 첨부 게시물"
+  },
+  {
+    "id": "attach-book",
+    "group": "02 Circle",
+    "title": "게시물에 책 첨부"
+  },
+  {
+    "id": "review",
+    "group": "02 Circle",
+    "title": "서평과 별점 작성"
+  },
+  {
+    "id": "post",
+    "group": "02 Circle",
+    "title": "게시물과 댓글"
+  },
+  {
+    "id": "post-menu",
+    "group": "02 Circle",
+    "title": "타인 게시물 메뉴"
+  },
+  {
+    "id": "own-post-menu",
+    "group": "02 Circle",
+    "title": "내 게시물 메뉴"
+  },
+  {
+    "id": "edit-post",
+    "group": "02 Circle",
+    "title": "게시물 수정"
+  },
+  {
+    "id": "delete-post",
+    "group": "02 Circle",
+    "title": "게시물 삭제 확인"
+  },
+  {
+    "id": "comment-menu",
+    "group": "02 Circle",
+    "title": "타인 댓글 메뉴"
+  },
+  {
+    "id": "own-comment-menu",
+    "group": "02 Circle",
+    "title": "내 댓글 메뉴"
+  },
+  {
+    "id": "owner-comment-menu",
+    "group": "02 Circle",
+    "title": "내 게시물의 댓글 관리"
+  },
+  {
+    "id": "edit-comment",
+    "group": "02 Circle",
+    "title": "댓글 수정"
+  },
+  {
+    "id": "delete-comment",
+    "group": "02 Circle",
+    "title": "댓글 삭제 확인"
+  },
+  {
+    "id": "report",
+    "group": "02 Circle",
+    "title": "신고 제출"
+  },
+  {
+    "id": "report-sent",
+    "group": "02 Circle",
+    "title": "신고 접수 완료"
+  },
+  {
+    "id": "notifications",
+    "group": "02 Circle",
+    "title": "알림 목록"
+  },
+  {
+    "id": "notifications-empty",
+    "group": "02 Circle",
+    "title": "알림 없음"
+  },
+  {
+    "id": "library",
+    "group": "03 내 서재",
+    "title": "내 서재 · 책장"
+  },
+  {
+    "id": "library-books",
+    "group": "03 내 서재",
+    "title": "내 서재 · 책 목록"
+  },
+  {
+    "id": "sort-books",
+    "group": "03 내 서재",
+    "title": "책 정렬"
+  },
+  {
+    "id": "library-empty",
+    "group": "03 내 서재",
+    "title": "내 서재 빈 상태"
+  },
+  {
+    "id": "search-results",
+    "group": "03 내 서재",
+    "title": "내 서재 검색 결과"
+  },
+  {
+    "id": "search-empty",
+    "group": "03 내 서재",
+    "title": "검색 결과 없음"
+  },
+  {
+    "id": "filter-empty",
+    "group": "03 내 서재",
+    "title": "상태 필터 결과 없음"
+  },
+  {
+    "id": "shelf",
+    "group": "03 내 서재",
+    "title": "내 책장 상세"
+  },
+  {
+    "id": "shelf-empty",
+    "group": "03 내 서재",
+    "title": "빈 책장"
+  },
+  {
+    "id": "create-shelf",
+    "group": "03 내 서재",
+    "title": "책장 만들기"
+  },
+  {
+    "id": "shelf-settings",
+    "group": "03 내 서재",
+    "title": "책장 설정"
+  },
+  {
+    "id": "private-confirm",
+    "group": "03 내 서재",
+    "title": "비공개 전환 확인"
+  },
+  {
+    "id": "delete-shelf",
+    "group": "03 내 서재",
+    "title": "책장 삭제 방법"
+  },
+  {
+    "id": "move-all",
+    "group": "03 내 서재",
+    "title": "책 전체 이동 후 책장 삭제"
+  },
+  {
+    "id": "delete-shelf-confirm",
+    "group": "03 내 서재",
+    "title": "책장과 책 삭제 확인"
+  },
+  {
+    "id": "book",
+    "group": "03 내 서재",
+    "title": "소유한 책 상세"
+  },
+  {
+    "id": "saved-book",
+    "group": "03 내 서재",
+    "title": "소유하지 않은 읽고 싶은 책"
+  },
+  {
+    "id": "book-menu",
+    "group": "03 내 서재",
+    "title": "책 관리 메뉴"
+  },
+  {
+    "id": "reading-status",
+    "group": "03 내 서재",
+    "title": "읽기 상태 변경"
+  },
+  {
+    "id": "move-book",
+    "group": "03 내 서재",
+    "title": "책 이동"
+  },
+  {
+    "id": "remove-book",
+    "group": "03 내 서재",
+    "title": "책 삭제 확인"
+  },
+  {
+    "id": "explore",
+    "group": "04 Explore",
+    "title": "친구 컬렉션 탐색"
+  },
+  {
+    "id": "explore-public",
+    "group": "04 Explore",
+    "title": "공개 컬렉션 탐색"
+  },
+  {
+    "id": "explore-results",
+    "group": "04 Explore",
+    "title": "도서 발견 검색 결과"
+  },
+  {
+    "id": "explore-empty",
+    "group": "04 Explore",
+    "title": "공유된 친구 책장 없음"
+  },
+  {
+    "id": "explore-no-results",
+    "group": "04 Explore",
+    "title": "발견 검색 결과 없음"
+  },
+  {
+    "id": "friend-shelf",
+    "group": "04 Explore",
+    "title": "친구 책장 상세 · 읽기 전용"
+  },
+  {
+    "id": "public-shelf",
+    "group": "04 Explore",
+    "title": "공개 책장 상세 · 읽기 전용"
+  },
+  {
+    "id": "friend-book",
+    "group": "04 Explore",
+    "title": "친구 책 상세 패널"
+  },
+  {
+    "id": "public-book",
+    "group": "04 Explore",
+    "title": "공개 컬렉션의 책"
+  },
+  {
+    "id": "save-shelf",
+    "group": "04 Explore",
+    "title": "읽고 싶은 책 저장 · 책장 선택"
+  },
+  {
+    "id": "book-saved",
+    "group": "04 Explore",
+    "title": "저장 완료"
+  },
+  {
+    "id": "unavailable",
+    "group": "04 Explore",
+    "title": "비공개 또는 접근 불가"
+  },
+  {
+    "id": "public-profile",
+    "group": "04 Explore",
+    "title": "비친구 공개 프로필"
+  },
+  {
+    "id": "camera-permission",
+    "group": "05 책 추가와 스캔",
+    "title": "카메라 접근 안내"
+  },
+  {
+    "id": "scanner",
+    "group": "05 책 추가와 스캔",
+    "title": "바코드 스캐너"
+  },
+  {
+    "id": "camera-denied",
+    "group": "05 책 추가와 스캔",
+    "title": "카메라 권한 거부"
+  },
+  {
+    "id": "scan-loading",
+    "group": "05 책 추가와 스캔",
+    "title": "ISBN 조회 중"
+  },
+  {
+    "id": "scan-found",
+    "group": "05 책 추가와 스캔",
+    "title": "책 발견 · 확인"
+  },
+  {
+    "id": "scan-duplicate",
+    "group": "05 책 추가와 스캔",
+    "title": "이미 있는 책"
+  },
+  {
+    "id": "manual-isbn",
+    "group": "05 책 추가와 스캔",
+    "title": "ISBN 직접 입력"
+  },
+  {
+    "id": "isbn-not-found",
+    "group": "05 책 추가와 스캔",
+    "title": "ISBN 조회 결과 없음"
+  },
+  {
+    "id": "catalogue-search",
+    "group": "05 책 추가와 스캔",
+    "title": "외부 도서 검색"
+  },
+  {
+    "id": "catalogue-results",
+    "group": "05 책 추가와 스캔",
+    "title": "도서 검색 결과 · 판본"
+  },
+  {
+    "id": "catalogue-no-results",
+    "group": "05 책 추가와 스캔",
+    "title": "도서 검색 결과 없음"
+  },
+  {
+    "id": "manual-book",
+    "group": "05 책 추가와 스캔",
+    "title": "도서 직접 등록"
+  },
+  {
+    "id": "book-photo",
+    "group": "05 책 추가와 스캔",
+    "title": "표지 사진 선택"
+  },
+  {
+    "id": "manual-confirm",
+    "group": "05 책 추가와 스캔",
+    "title": "직접 등록 · 저장"
+  },
+  {
+    "id": "manual-possible-duplicate",
+    "group": "05 책 추가와 스캔",
+    "title": "ISBN 없는 책 · 중복 가능성 검토"
+  },
+  {
+    "id": "scan-saved",
+    "group": "05 책 추가와 스캔",
+    "title": "일괄 스캔 · 저장 완료"
+  },
+  {
+    "id": "photo-denied",
+    "group": "05 책 추가와 스캔",
+    "title": "사진 접근 거부"
+  },
+  {
+    "id": "friends",
+    "group": "06 친구",
+    "title": "친구 목록"
+  },
+  {
+    "id": "friends-empty",
+    "group": "06 친구",
+    "title": "친구 없음"
+  },
+  {
+    "id": "invite",
+    "group": "06 친구",
+    "title": "친구 초대 코드와 링크"
+  },
+  {
+    "id": "enter-code",
+    "group": "06 친구",
+    "title": "친구 코드 입력"
+  },
+  {
+    "id": "invalid-code",
+    "group": "06 친구",
+    "title": "잘못된 친구 코드"
+  },
+  {
+    "id": "request-preview",
+    "group": "06 친구",
+    "title": "친구 요청 전 확인"
+  },
+  {
+    "id": "request-sent",
+    "group": "06 친구",
+    "title": "친구 요청 발송"
+  },
+  {
+    "id": "requests",
+    "group": "06 친구",
+    "title": "받은 친구 요청"
+  },
+  {
+    "id": "request-detail",
+    "group": "06 친구",
+    "title": "친구 요청 수락·거절"
+  },
+  {
+    "id": "sent-requests",
+    "group": "06 친구",
+    "title": "보낸 친구 요청"
+  },
+  {
+    "id": "friend-profile",
+    "group": "06 친구",
+    "title": "친구 프로필"
+  },
+  {
+    "id": "profile-menu",
+    "group": "06 친구",
+    "title": "연결 관리 메뉴"
+  },
+  {
+    "id": "remove-friend",
+    "group": "06 친구",
+    "title": "친구 삭제 확인"
+  },
+  {
+    "id": "block-friend",
+    "group": "06 친구",
+    "title": "차단 확인"
+  },
+  {
+    "id": "blocked-users",
+    "group": "06 친구",
+    "title": "차단 목록"
+  },
+  {
+    "id": "unblock",
+    "group": "06 친구",
+    "title": "차단 해제 확인"
+  },
+  {
+    "id": "profile",
+    "group": "07 프로필과 계정",
+    "title": "프로필과 설정"
+  },
+  {
+    "id": "edit-profile",
+    "group": "07 프로필과 계정",
+    "title": "프로필 수정"
+  },
+  {
+    "id": "notification-settings",
+    "group": "07 프로필과 계정",
+    "title": "알림 설정"
+  },
+  {
+    "id": "account",
+    "group": "07 프로필과 계정",
+    "title": "계정과 로그인"
+  },
+  {
+    "id": "delete-account",
+    "group": "07 프로필과 계정",
+    "title": "계정 삭제 안내"
+  },
+  {
+    "id": "reauth",
+    "group": "07 프로필과 계정",
+    "title": "계정 삭제 · 본인 확인"
+  },
+  {
+    "id": "deleting",
+    "group": "07 프로필과 계정",
+    "title": "계정 삭제 처리"
+  },
+  {
+    "id": "delete-account-error",
+    "group": "07 프로필과 계정",
+    "title": "계정 삭제 실패"
+  },
+  {
+    "id": "account-deleted",
+    "group": "07 프로필과 계정",
+    "title": "계정 삭제 완료"
+  },
+  {
+    "id": "signout",
+    "group": "07 프로필과 계정",
+    "title": "로그아웃 확인"
+  },
+  {
+    "id": "support",
+    "group": "07 프로필과 계정",
+    "title": "도움말과 문의"
+  },
+  {
+    "id": "support-message",
+    "group": "07 프로필과 계정",
+    "title": "지원 문의 작성"
+  },
+  {
+    "id": "offline-library",
+    "group": "08 빈 화면과 오류",
+    "title": "오프라인 · 저장된 내 서재"
+  },
+  {
+    "id": "offline-book",
+    "group": "08 빈 화면과 오류",
+    "title": "오프라인 · 책 읽기 전용"
+  },
+  {
+    "id": "offline-action",
+    "group": "08 빈 화면과 오류",
+    "title": "오프라인 · 변경 불가"
+  },
+  {
+    "id": "network-error",
+    "group": "08 빈 화면과 오류",
+    "title": "연결 오류"
+  },
+  {
+    "id": "feed-loading",
+    "group": "08 빈 화면과 오류",
+    "title": "피드 로딩"
+  },
+  {
+    "id": "save-error",
+    "group": "08 빈 화면과 오류",
+    "title": "저장 실패 · 초안 유지"
+  },
+  {
+    "id": "content-filtered",
+    "group": "08 빈 화면과 오류",
+    "title": "게시 전 콘텐츠 확인"
+  },
+  {
+    "id": "notification-permission",
+    "group": "08 빈 화면과 오류",
+    "title": "푸시 알림 권한 안내"
+  },
+  {
+    "id": "moderation",
+    "group": "09 운영자 전용",
+    "title": "기본 신고 검토함"
+  },
+  {
+    "id": "report-detail",
+    "group": "09 운영자 전용",
+    "title": "신고 상세 검토"
+  },
+  {
+    "id": "moderation-action",
+    "group": "09 운영자 전용",
+    "title": "신고 조치 확인"
+  }
+]

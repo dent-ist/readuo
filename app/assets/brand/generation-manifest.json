@@ -1,0 +1,334 @@
+{
+  "source": "C:/Users/realp/Downloads/readuo.svg",
+  "sourceSha256": "898a5c68bcd4edc102e8a1aeef10d8ee1dec56be3f996053994a752865c2d1b9",
+  "font": "Arial Black",
+  "fontSha256": "10df702864b1f89cb29ba0d6b97c04228338d16807e13e8d8c74b91aba5e5f23",
+  "renderer": "@resvg/resvg-js 2.6.2",
+  "pngProcessor": "sharp 0.35.4",
+  "androidForegroundTransform": "translate(72 72) scale(0.64)",
+  "androidSafeCircleDp": 66,
+  "iosAdaptation": "Crop the 10px transparent source margin, extend the same gradients to square corners, remove the baked corner border; OS applies the icon mask.",
+  "outlines": {
+    "original": "bd3549c144d3cba595194286879945f4a6566fdc693c6374978582d00601b889",
+    "ios": "4625b685c89e554c57b463fc1858d09622b9ac5f72845cf6b65b1d1606a8de8a",
+    "foreground": "1697efc21ce42ee5448266aa5cce37a4982a8d7bcd3116e1712b4eaf7f090ee1",
+    "background": "4ae3ebab2818c7ad179c345628b021a93b0be4cabcb54cd23e1b61dd3b78ad19"
+  },
+  "files": [
+    {
+      "path": "app/assets/brand/exports/readuo-32.png",
+      "width": 32,
+      "height": 32,
+      "alpha": true,
+      "sha256": "124a38dd26e2f2cd9a3f8ddcbaf6fcd2ca0bdfe04e1c235f8f0ffe38108035ed"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-48.png",
+      "width": 48,
+      "height": 48,
+      "alpha": true,
+      "sha256": "fa61b8e3954fc2cd7e1d865619c3ff27a054577dbbba2ab74c4d1953b9e17a11"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-64.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true,
+      "sha256": "eb4cda4b28d6c77aa7044ffdb6feeba2c3c690102b3980fe643ef1200a860c9f"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-96.png",
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "sha256": "a3566b5c2cc0161a263c39135c05a8a192dbc53ba45f590c168278e37e5b6714"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-128.png",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "sha256": "2907ef3b2d4add629855e1427105b199ce4d13530e7b5b8e8540e5d72968cd98"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-192.png",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "sha256": "7e45b777a1b2e7e6c5af3a92eb891431a6871d7bfe7d187890b903a42e2aeb0c"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-256.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "sha256": "0a4c2fe7cc3b6b62884c599a18c37a7c02fa09652d470e0c5ecaf0ac0d692ce3"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-400.png",
+      "width": 400,
+      "height": 400,
+      "alpha": true,
+      "sha256": "65594157fb4dd2a16ead6961f137d3f73ec4edf0282c4123b5532794a0a456f9"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-512.png",
+      "width": 512,
+      "height": 512,
+      "alpha": true,
+      "sha256": "242e30d240f85343d2a87317b78a0ae39c192bdf3da41141fbccba0948a85b39"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "069960c14f426a786f03a715ddf5d1a0ac7253c840312618ac41eb2ca5017b11"
+    },
+    {
+      "path": "app/assets/brand/readuo-logo.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true,
+      "sha256": "eb4cda4b28d6c77aa7044ffdb6feeba2c3c690102b3980fe643ef1200a860c9f"
+    },
+    {
+      "path": "app/assets/brand/2.0x/readuo-logo.png",
+      "width": 128,
+      "height": 128,
+      "alpha": true,
+      "sha256": "2907ef3b2d4add629855e1427105b199ce4d13530e7b5b8e8540e5d72968cd98"
+    },
+    {
+      "path": "app/assets/brand/3.0x/readuo-logo.png",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "sha256": "7e45b777a1b2e7e6c5af3a92eb891431a6871d7bfe7d187890b903a42e2aeb0c"
+    },
+    {
+      "path": "app/assets/brand/4.0x/readuo-logo.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "sha256": "0a4c2fe7cc3b6b62884c599a18c37a7c02fa09652d470e0c5ecaf0ac0d692ce3"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "width": 48,
+      "height": 48,
+      "alpha": true,
+      "sha256": "fa61b8e3954fc2cd7e1d865619c3ff27a054577dbbba2ab74c4d1953b9e17a11"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png",
+      "width": 108,
+      "height": 108,
+      "alpha": true,
+      "sha256": "f22de81f9ca1ec94389e5e52a00ecb96de93d940646bdbe6b6c21308644f785e"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-mdpi/ic_launcher_background.png",
+      "width": 108,
+      "height": 108,
+      "alpha": false,
+      "sha256": "4bd23cb82b5b9f31692c0947d2473f5aec47c4cd261875a7791c4bd4f2887eff"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "width": 72,
+      "height": 72,
+      "alpha": true,
+      "sha256": "2624a2d17f974e9ae01357e6dd498a1a3094d30f94ae6da7f9c26cc4331758d4"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png",
+      "width": 162,
+      "height": 162,
+      "alpha": true,
+      "sha256": "5e91f1a6fb28c165884a5927ea51f7350641529c973b26e45caf42888a6533dc"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-hdpi/ic_launcher_background.png",
+      "width": 162,
+      "height": 162,
+      "alpha": false,
+      "sha256": "8066550d53e71b9974a9e07f25c745af5571eb6d960284f3836ac31609e7c622"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "sha256": "a3566b5c2cc0161a263c39135c05a8a192dbc53ba45f590c168278e37e5b6714"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png",
+      "width": 216,
+      "height": 216,
+      "alpha": true,
+      "sha256": "d9347ff86b6041806c1ab36a7d8fa82c54465eff961f1bd7bf09aa4105b42620"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-xhdpi/ic_launcher_background.png",
+      "width": 216,
+      "height": 216,
+      "alpha": false,
+      "sha256": "636ca723e0ab872c14df20f29a78e1d263aec292f1b08b69d2517ce3269dd169"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "width": 144,
+      "height": 144,
+      "alpha": true,
+      "sha256": "0e95ef83835f72a506dc77dd6709d9a5d15bcad1daa4e37daeeeafd2777cde72"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "width": 324,
+      "height": 324,
+      "alpha": true,
+      "sha256": "f84ccb55d5fad06d315a85f7da275635138ea313605bf3beb51eed656afc6995"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_background.png",
+      "width": 324,
+      "height": 324,
+      "alpha": false,
+      "sha256": "8e8cdf75bdf165abb98fa27513bbe8d5dd425c6dca560ceb0fb2ab4968433f73"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "width": 192,
+      "height": 192,
+      "alpha": true,
+      "sha256": "7e45b777a1b2e7e6c5af3a92eb891431a6871d7bfe7d187890b903a42e2aeb0c"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "width": 432,
+      "height": 432,
+      "alpha": true,
+      "sha256": "8b25442de0dda186259a1759dce5463ade313413a6ed0c05be38578dcd2ca658"
+    },
+    {
+      "path": "app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png",
+      "width": 432,
+      "height": 432,
+      "alpha": false,
+      "sha256": "42ef0fc19944dc291be867abeb09c37a83ff8915e740d079c775aa86fc7de3c4"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png",
+      "width": 40,
+      "height": 40,
+      "alpha": false,
+      "sha256": "1b8806dad9a50dfbdadc290863007ea4de7b0c885a3a4de825ac4ced749f4024"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png",
+      "width": 60,
+      "height": 60,
+      "alpha": false,
+      "sha256": "665445b4fb10a8da7fe82121d92a516c9f9f83eaaa2fa3b435d698d8a436a764"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png",
+      "width": 29,
+      "height": 29,
+      "alpha": false,
+      "sha256": "6a3a29c22a0f0ba3728a99e1aa2dd24e1d9c0fc28b32b078c3dc9dff71c7bd43"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png",
+      "width": 58,
+      "height": 58,
+      "alpha": false,
+      "sha256": "fa4b16e83c0479050bdd09234bae4049130820b841606136aeef2f0690980d00"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png",
+      "width": 87,
+      "height": 87,
+      "alpha": false,
+      "sha256": "a47e4d0b31c48c79a0a9a84ee88205ed45cbaa48363c8b4e61e95f8a4060bf02"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png",
+      "width": 80,
+      "height": 80,
+      "alpha": false,
+      "sha256": "7005da6eba2382bf1fb54ab0796e88d492c0b1a33ef76f99ff9ccb5961e1d86f"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png",
+      "width": 120,
+      "height": 120,
+      "alpha": false,
+      "sha256": "85ed73038a844f77b1ce0c15b00f4732e916452fe7ce8e2e8121d1e70e1996bf"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png",
+      "width": 120,
+      "height": 120,
+      "alpha": false,
+      "sha256": "85ed73038a844f77b1ce0c15b00f4732e916452fe7ce8e2e8121d1e70e1996bf"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png",
+      "width": 180,
+      "height": 180,
+      "alpha": false,
+      "sha256": "bc761eed671a2a349b77a45e8c7ce454ead1b80e0f86ef5324e13f8bfc7cce6d"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png",
+      "width": 20,
+      "height": 20,
+      "alpha": false,
+      "sha256": "f341beddd8eb858d5e47bd9376fbbffd5fd9ab20e46cd7f4cb30c5e0cb1a0947"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png",
+      "width": 40,
+      "height": 40,
+      "alpha": false,
+      "sha256": "1b8806dad9a50dfbdadc290863007ea4de7b0c885a3a4de825ac4ced749f4024"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png",
+      "width": 76,
+      "height": 76,
+      "alpha": false,
+      "sha256": "b78177ea81459fa342cd5748e1ba9c794572f7ae48c5f9d6188eb2f7f1de2eeb"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png",
+      "width": 152,
+      "height": 152,
+      "alpha": false,
+      "sha256": "a35d36b941b603f02e15d0bd5fe6787df297e676f5b8c934c771ed685de094aa"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png",
+      "width": 167,
+      "height": 167,
+      "alpha": false,
+      "sha256": "13041c9d0c58750ab6f5e38544344dfd3ee49abe0582cf47276c2a3a709d2090"
+    },
+    {
+      "path": "app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "sha256": "bdd4967d57a2803a02ae615eb3aff5437b39d69de0ade4cf92480e48e588a9ae"
+    },
+    {
+      "path": "app/assets/brand/exports/readuo-ios-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "sha256": "bdd4967d57a2803a02ae615eb3aff5437b39d69de0ade4cf92480e48e588a9ae"
+    }
+  ]
+}

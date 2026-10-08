@@ -1,0 +1,29 @@
+[
+  {
+    "id": "login",
+    "error": null,
+    "physicalWidth": 390.0,
+    "physicalHeight": 844.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "login-error",
+    "error": null,
+    "physicalWidth": 390.0,
+    "physicalHeight": 844.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "setup",
+    "error": null,
+    "physicalWidth": 390.0,
+    "physicalHeight": 844.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  }
+]

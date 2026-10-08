@@ -1,0 +1,266 @@
+[
+  {
+    "id": "phone-circle",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-circle-bottom",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-library",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-friends",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-profile",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-compose",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-0",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-after-draft-back",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-discard-dialog",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-1",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-2",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-scanner-from-circle",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-3",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-back-to-circle",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-scanner-from-library",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-4",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-back-to-library",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-scanner-from-friends",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-5",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-back-to-friends",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-scanner-from-profile",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-6",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-back-to-profile",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-invite",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-7",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-friends-bottom",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-scanner-manual-entry",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-8",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-shelf",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-shelf-status-strip",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-shelf-scanner",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "native-back-trigger-9",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "id": "phone-back-to-shelf",
+    "error": null,
+    "width": 390.0,
+    "height": 844.0,
+    "systemBottom": 48.0,
+    "keyboardBottom": 0.0
+  }
+]

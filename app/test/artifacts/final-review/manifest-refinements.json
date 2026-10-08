@@ -1,0 +1,38 @@
+[
+  {
+    "id": "book",
+    "error": null,
+    "physicalWidth": 390.0,
+    "physicalHeight": 844.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "book-guidance",
+    "error": null,
+    "physicalWidth": 390.0,
+    "physicalHeight": 844.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "circle-empty",
+    "error": null,
+    "physicalWidth": 390.0,
+    "physicalHeight": 844.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  },
+  {
+    "id": "circle-empty-actions",
+    "error": null,
+    "physicalWidth": 390.0,
+    "physicalHeight": 844.0,
+    "devicePixelRatio": 1.0,
+    "keyboardBottom": 0.0,
+    "systemBottom": 48.0
+  }
+]

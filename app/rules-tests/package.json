@@ -1,0 +1,13 @@
+{
+  "name": "readuo-firestore-rules-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 firestore.rules.test.mjs social-services.rules.test.mjs account-deletion.rules.test.mjs book-covers.rules.test.mjs profile-media.integration.test.mjs",
+    "test:build22-compat": "node --test build22-compat.mjs"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "firebase": "^12.3.0"
+  }
+}

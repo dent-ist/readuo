@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <!-- Main background gradient - dark green -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5a9e2f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3d7a1a;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Light green gradient for book pages -->
+    <linearGradient id="bookGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8d855;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7fbf28;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Sun gradient -->
+    <radialGradient id="sunGrad" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" style="stop-color:#ffe066;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5a800;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Clip to rounded square -->
+    <clipPath id="roundedSquare">
+      <rect x="10" y="10" width="380" height="380" rx="70" ry="70"/>
+    </clipPath>
+
+    <!-- Inner highlight on background -->
+    <linearGradient id="highlightGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15" />
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect x="10" y="10" width="380" height="380" rx="70" ry="70" fill="url(#bgGrad)"/>
+
+  <!-- Subtle highlight overlay -->
+  <rect x="10" y="10" width="380" height="380" rx="70" ry="70" fill="url(#highlightGrad)"/>
+
+  <!-- Book shape group (clipped inside the rounded square) -->
+  <g clip-path="url(#roundedSquare)">
+    <!-- Left page of open book -->
+    <path d="M200 295 Q140 250 60 265 L60 390 Q140 370 200 390 Z" fill="url(#bookGrad)" opacity="0.95"/>
+    <!-- Right page of open book -->
+    <path d="M200 295 Q260 250 340 265 L340 390 Q260 370 200 390 Z" fill="url(#bookGrad)" opacity="0.85"/>
+    <!-- Book spine shadow -->
+    <path d="M200 295 L200 390" stroke="#6aaa20" stroke-width="2" opacity="0.5"/>
+    <!-- Second wave - left leaf -->
+    <path d="M200 330 Q130 290 50 310 L50 390 Q130 385 200 390 Z" fill="#c5e86a" opacity="0.6"/>
+    <!-- Second wave - right leaf -->
+    <path d="M200 330 Q270 290 350 310 L350 390 Q270 385 200 390 Z" fill="#b8df55" opacity="0.5"/>
+  </g>
+
+  <!-- Bar above READ (overline) -->
+  <rect x="40" y="150" width="200" height="5" rx="2.5" fill="white" opacity="0.9"/>
+
+  <!-- READUO text -->
+  <text
+    x="200"
+    y="215"
+    font-family="Arial Black, Arial, sans-serif"
+    font-weight="900"
+    font-size="68"
+    fill="white"
+    text-anchor="middle"
+    letter-spacing="1"
+    style="paint-order: stroke; stroke: rgba(0,0,0,0.15); stroke-width: 4px;"
+  >READUO</text>
+
+  <!-- Bar below DUO (underline) -->
+  <rect x="200" y="225" width="162" height="5" rx="2.5" fill="white" opacity="0.9"/>
+
+  <!-- Orange sun dot (the O dot) -->
+  <circle cx="286" cy="122" r="22" fill="url(#sunGrad)"/>
+  <!-- Sun highlight -->
+  <circle cx="279" cy="115" r="8" fill="white" opacity="0.35"/>
+
+  <!-- Outer border/shadow effect -->
+  <rect x="10" y="10" width="380" height="380" rx="70" ry="70" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="3"/>
+</svg>

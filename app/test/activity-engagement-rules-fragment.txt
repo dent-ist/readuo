@@ -1,0 +1,98 @@
+          function canEngageActivity() {
+            let activity = get(/databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId)/activities/$(activityId)).data;
+            let shelf = get(shelfPath()).data;
+            let book = get(bookPath()).data;
+            return request.auth != null
+              && activity.authorId == shelf.ownerId
+              && activity.shelfId == shelfId && activity.bookId == bookId
+              && (request.auth.uid == shelf.ownerId || readersAreFriends(request.auth.uid, shelf.ownerId))
+              && !readersBlocked(request.auth.uid, shelf.ownerId)
+              && shelf.visibility in ['friends', 'public']
+              && shelf.autoShareActivity == true
+              && book.ownerId == shelf.ownerId && book.shelfId == shelfId
+              && book.activityGeneration == activity.activityGeneration
+              && (activity.type in ['started', 'finished'] || (activity.type == 'added' && book.isOwned == true));
+          }
+
+      match /likes/{userId} {
+        function parentActivity() {
+          return get(/databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId)/activities/$(activityId)).data;
+        }
+
+        allow read: if canEngageActivity();
+        allow create: if activeAccount() && request.auth != null
+                      && request.auth.uid == userId
+                      && canEngageActivity()
+                      && request.resource.data.keys().hasOnly([
+                           'userId', 'createdAt'
+                         ])
+                      && request.resource.data.userId == userId
+                      && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if activeAccount() && request.auth != null
+                      && (
+                        request.auth.uid == userId
+                        || request.auth.uid == parentActivity().authorId
+                      );
+      }
+
+      match /comments/{commentId} {
+        function parentActivity() {
+          return get(/databases/$(database)/documents/shelves/$(shelfId)/books/$(bookId)/activities/$(activityId)).data;
+        }
+
+        function validComment(data) {
+          let profile = get(/databases/$(database)/documents/readerProfiles/$(data.authorId)).data;
+          return data.keys().hasOnly([
+                   'authorId', 'authorDisplayName', 'authorPhotoUrl', 'text',
+                   'createdAt', 'updatedAt'
+                 ])
+                 && data.authorId is string
+                 && data.authorDisplayName is string
+                 && data.authorDisplayName.size() > 0
+                 && data.authorDisplayName.size() <= 80
+                 && (data.authorPhotoUrl == null
+                     || (data.authorPhotoUrl is string
+                         && data.authorPhotoUrl.size() <= 500))
+                 && data.text is string
+                 && data.text.size() > 0
+                 && data.text.size() <= 1000
+                 && data.text.matches('[\\s\\S]*\\S[\\s\\S]*')
+                 && data.createdAt is timestamp
+                 && data.updatedAt is timestamp
+                 && profile.ownerId == data.authorId
+                 && profile.displayName == data.authorDisplayName
+                 && profile.photoUrl == data.authorPhotoUrl;
+        }
+
+        allow read: if canEngageActivity();
+        allow create: if activeAccount() && request.auth != null
+                      && request.auth.uid == request.resource.data.authorId
+                      && canEngageActivity()
+                      && request.resource.data.createdAt == request.time
+                      && request.resource.data.updatedAt == request.time
+                      && contentAllowed(request.resource.data.text)
+                      && validComment(request.resource.data);
+        allow update: if activeAccount() && request.auth != null
+                      && canEngageActivity()
+                      && request.auth.uid == resource.data.authorId
+                      && request.resource.data.authorId == resource.data.authorId
+                      && request.resource.data.authorDisplayName
+                           == resource.data.authorDisplayName
+                      && request.resource.data.authorPhotoUrl
+                           == resource.data.authorPhotoUrl
+                      && request.resource.data.createdAt == resource.data.createdAt
+                      && request.resource.data.updatedAt == request.time
+                      && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['text', 'updatedAt'])
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 1000
+                      && request.resource.data.text.matches('[\\s\\S]*\\S[\\s\\S]*')
+                      && contentAllowed(request.resource.data.text);
+        allow delete: if activeAccount() && request.auth != null
+                      && (
+                        request.auth.uid == resource.data.authorId
+                        || request.auth.uid == parentActivity().authorId
+                      );
+      }

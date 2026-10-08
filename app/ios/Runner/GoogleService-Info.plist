@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>881895077363-vk8ef9op1doh517lqegjgsfuicje94hd.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.881895077363-vk8ef9op1doh517lqegjgsfuicje94hd</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>881895077363-p5d1bcpav8dja2tqc4940k0jo71indvp.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDqoyizSvJDeGVNN9tIHu67xg1Id5DRtWM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>881895077363</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.zipdosa.readuo</string>
+	<key>PROJECT_ID</key>
+	<string>readuo-b2f24</string>
+	<key>STORAGE_BUCKET</key>
+	<string>readuo-b2f24.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:881895077363:ios:64707e10d22cb0f790ce86</string>
+	<key>DATABASE_URL</key>
+	<string>https://readuo-b2f24-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>

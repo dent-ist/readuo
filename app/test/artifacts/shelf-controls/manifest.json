@@ -1,0 +1,68 @@
+[
+  {
+    "name": "shelf-empty",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "name": "shelf-add-choices",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "name": "shelf-scan-destination",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "name": "shelf-manual-destination",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "name": "shelf-header-search",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 299.0
+  },
+  {
+    "name": "shelf-search-keyboard-dismissed",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "name": "shelf-catalogue-results",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "name": "shelf-catalogue-destination",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "name": "shelf-books",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "name": "shelf-filter-no-results",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  },
+  {
+    "name": "shelf-filter-cleared",
+    "width": 390.0,
+    "height": 844.0,
+    "keyboardBottom": 0.0
+  }
+]

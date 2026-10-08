@@ -1,0 +1,28 @@
+{
+  "states": [
+    {
+      "name": "header-circle",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "header-library",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "header-friends",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "header-profile",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    }
+  ]
+}

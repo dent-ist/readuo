@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.zipdosa.readuo",
+      "sha256_cert_fingerprints": ["4D:F0:FC:ED:63:B4:2F:63:0C:45:DF:3F:60:00:0E:8F:7E:6D:7E:89:E7:5E:64:D7:4B:49:15:74:B5:E7:B1:F7"]
+    }
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "states": [
+    {
+      "name": "notification-first-connection",
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0
+    },
+    {
+      "name": "notification-denied",
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0
+    },
+    {
+      "name": "notification-denied-settings",
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0
+    },
+    {
+      "name": "notification-profile-enable",
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0
+    },
+    {
+      "name": "notification-quiet-banner",
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0
+    },
+    {
+      "name": "shelf-round-book-plus",
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0
+    },
+    {
+      "name": "shelf-round-speed-dial",
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0
+    }
+  ]
+}

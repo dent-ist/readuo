@@ -1,0 +1,34 @@
+{
+  "states": [
+    {
+      "name": "release-notification-settings",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "books-added-setting",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "books-added-activity",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "books-added-next-page",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    },
+    {
+      "name": "books-added-revoked",
+      "width": 360.0,
+      "height": 640.0,
+      "textScale": 1.3
+    }
+  ]
+}

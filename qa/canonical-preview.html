@@ -1,0 +1,10 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Readuo canonical preview</title>
+<script>
+fetch('../design/readuo-first-release.html').then(response => response.text()).then(fragment => {
+  document.open();
+  document.write('<!doctype html><meta charset="utf-8"><title>Readuo canonical preview</title><script src="/qa/node_modules/lucide/dist/umd/lucide.js"><\/script>' + fragment);
+  document.close();
+});
+</script>

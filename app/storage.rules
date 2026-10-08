@@ -1,0 +1,90 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function activeAccount() {
+      return signedIn()
+        && firestore.exists(/databases/(default)/documents/activeAccounts/$(request.auth.uid));
+    }
+
+    function friends(firstId, secondId) {
+      return firestore.exists(
+               /databases/(default)/documents/friendships/$(firstId + '--' + secondId)
+             )
+             || firestore.exists(
+                  /databases/(default)/documents/friendships/$(secondId + '--' + firstId)
+                );
+    }
+
+    function blocked(firstId, secondId) {
+      return firestore.exists(
+               /databases/(default)/documents/blocks/$(firstId)/blocked/$(secondId)
+             )
+             || firestore.exists(
+                  /databases/(default)/documents/blocks/$(secondId)/blocked/$(firstId)
+                );
+    }
+
+    function post(postId) {
+      return firestore.get(
+        /databases/(default)/documents/circlePosts/$(postId)
+      );
+    }
+
+    match /circlePosts/{authorId}/{postId}/{fileName} {
+      allow read: if signedIn()
+                  && (
+                    request.auth.uid == authorId
+                    || (activeAccount() && request.auth.token.get('moderator', false) == true)
+                    || (
+                      firestore.exists(
+                        /databases/(default)/documents/circlePosts/$(postId)
+                      )
+                      && post(postId).data.authorId == authorId
+                      && friends(request.auth.uid, authorId)
+                      && !blocked(request.auth.uid, authorId)
+                    )
+                  );
+
+      allow create, update: if activeAccount()
+                            && request.auth.uid == authorId
+                            && !firestore.exists(/databases/(default)/documents/moderationLocks/$('post--' + postId))
+                            && fileName.matches('^photo-[0-9]+$')
+                            && request.resource.size > 0
+                            && request.resource.size <= 10 * 1024 * 1024
+                            && request.resource.contentType.matches(
+                                 '^image/(jpeg|png|webp)$'
+                               )
+                            && request.resource.metadata.ownerId == authorId
+                            && request.resource.metadata.postId == postId;
+      allow delete: if activeAccount() && request.auth.uid == authorId;
+    }
+
+    match /bookCovers/{ownerId}/{bookId}/{photoId} {
+      allow read: if activeAccount() && request.auth.uid == ownerId;
+      allow create: if activeAccount() && request.auth.uid == ownerId
+                    && resource == null
+                    && bookId.matches('^[A-Za-z0-9_-]{1,128}$')
+                    && photoId.matches('^[A-Za-z0-9]{20,64}$')
+                    && request.resource.size > 0 && request.resource.size <= 5 * 1024 * 1024
+                    && request.resource.contentType.matches('^image/(jpeg|png)$')
+                    && request.resource.metadata.ownerId == ownerId;
+      allow delete: if activeAccount() && request.auth.uid == ownerId;
+    }
+
+    match /profilePhotos/{ownerId}/{photoId} {
+      allow read: if signedIn()
+                    && (request.auth.uid == ownerId || (activeAccount() && request.auth.token.get('moderator', false) == true) || !blocked(request.auth.uid, ownerId));
+      allow create: if activeAccount() && request.auth.uid == ownerId
+                    && !firestore.exists(/databases/(default)/documents/moderatedProfiles/$(ownerId))
+                    && photoId.matches('^[A-Za-z0-9]+$')
+                    && request.resource.size > 0
+                    && request.resource.size <= 5 * 1024 * 1024
+                    && request.resource.contentType.matches('^image/(jpeg|png)$');
+      allow delete: if activeAccount() && request.auth.uid == ownerId;
+    }
+  }
+}

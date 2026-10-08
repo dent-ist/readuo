@@ -1,0 +1,35 @@
+{
+  "hosting": {
+    "site": "readuo-b2f24",
+    "public": "hosting",
+    "ignore": ["firebase.json", "**/node_modules/**"],
+    "cleanUrls": true,
+    "headers": [
+      {"source": "/.well-known/assetlinks.json", "headers": [{"key": "Content-Type", "value": "application/json"}, {"key": "Cache-Control", "value": "public,max-age=300"}]},
+      {"source": "**", "headers": [{"key": "X-Content-Type-Options", "value": "nosniff"}, {"key": "Referrer-Policy", "value": "no-referrer"}]}
+    ],
+    "rewrites": [{"source": "/invite/**", "destination": "/invite.html"}]
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs22"
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": false
+    },
+    "singleProjectMode": true
+  }
+}

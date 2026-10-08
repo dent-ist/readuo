@@ -1,0 +1,13 @@
+{
+  "firestore": {
+    "rules": "test/post-rules-deploy.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
+}
