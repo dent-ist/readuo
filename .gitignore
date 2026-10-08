@@ -1,1 +1,45 @@
+# Local machine and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+__pycache__/
+*.py[cod]
+.idea/
+*.iml
+
+# Logs and dependency caches
+*.log
+node_modules/
+.firebase/
+.dart_tool/
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+.gradle/
+
+# Generated builds and packaged releases
+/app/build/
+/app/android/build/
+/app/android/app/build/
+/app/coverage/
 *.apk
+*.aab
+*.ipa
+*.app.dSYM.zip
+
+# Local configuration and signing credentials (keep example files)
+.env
+.env.*
+!.env.example
+!.env.sample
+*.local.json
+local.properties
+key.properties
+*.jks
+*.keystore
+
+# Generated screenshots and visual QA output; preserve golden-test references
+/app/test/artifacts/*
+!/app/test/artifacts/p1-15-review/
