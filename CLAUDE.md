@@ -60,3 +60,14 @@ Deploy rules only after tests pass: `firebase deploy --only firestore:rules --pr
 **Backend split.** Security-sensitive or cross-document work lives in Cloud Functions (`functions/index.js` wires exports; logic is in `accounts.js`, `book_additions*.js`, `covers.js`, `notification_*.js`, `profile_media.js`, `deletion/`, `moderation/`; each of `deletion/` and `moderation/` splits `policy.js` / `service.js` / store). Policy modules are pure and unit-tested; `index.js` only wires them to triggers. Firestore data is guarded by `firestore.rules` and exercised by `rules-tests/`; changing a collection shape usually means updating rules, rules tests, indexes, and the client repository together.
 
 **Product constraints to preserve** (details in `AGENTS.md`/`app/README.md`): reading status is exactly Want to read / Reading / Finished with no page progress; bottom nav is Circle, Library, Friends, Profile; Android uses Google sign-in only (iOS deferred); bottom actions respect system and keyboard insets.
+
+## Working with role agents
+
+For non-trivial work, act as orchestrator rather than doing everything alone. Agents are defined in `.claude/agents/`:
+
+- `project-manager` first: scope, task split, owners, acceptance criteria, decisions needed from the user.
+- `android-ux` for any UI change (and verify the rendered state against the canonical design, per `AGENTS.md`); `ios-ux` for iOS planning only, since iOS is deferred.
+- `market-researcher` for competitor/audience questions.
+- `end-user-persona`, run in parallel once per age group (20s, 30s, 40s, 50s, 60s), to review user-facing screens, flows, and copy before delivery.
+
+Launch independent agents in one message so they run concurrently, and summarize their findings for the user. Persona feedback is simulated: present it as hypotheses, not evidence from real users. Agent suggestions never override `AGENTS.md`; a new design direction still needs an explicit user request.
