@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../features/account_service_retry.dart';
 import '../library/manual_book_draft.dart';
 import '../profile/profile_photo_draft.dart';
 import '../profile/edit_profile_screen.dart';
@@ -77,6 +78,7 @@ class AuthenticatedShell extends StatefulWidget {
 
 class _AuthenticatedShellState extends State<AuthenticatedShell>
     with WidgetsBindingObserver {
+  AccountServiceRetry? _accountRefresh;
   FeatureServices? _features;
   NotificationClient? _notifications;
   bool _isModerator = false;
@@ -153,6 +155,8 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     }
     _features?.invites.removeListener(_openPendingInvite);
     _features?.offline.removeListener(_notificationConnectionChanged);
+    _accountRefresh?.dispose();
+    _accountRefresh = null;
     _features = services;
     services.offline.addListener(_notificationConnectionChanged);
     services.invites.addListener(_openPendingInvite);
@@ -187,6 +191,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     _notifications = client;
     if (widget.authService case final FirebaseAuthService auth) {
       auth.beforeSignOut = () async {
+        _accountRefresh?.dispose();
         _notificationBanner.dismiss();
         await services.offline.clearSession();
         await client.beforeSignOut();
@@ -196,19 +201,36 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
       if (!mounted) return;
       _openPendingInvite();
       unawaited(_resumeManualPhoto());
-      unawaited(client.start().catchError(_notificationError));
+      _refreshAccountServices();
       unawaited(_maybeExplainNotifications());
-      try {
-        await widget.friendRepository.ensureProfile(widget.user);
-        final moderator = await services.moderation.isModerator();
-        if (mounted) setState(() => _isModerator = moderator);
-      } catch (error) {
-        _notificationError(error);
-      }
     });
   }
 
-  void _notificationError(Object error) {
+  void _refreshAccountServices() {
+    final services = _features;
+    final client = _notifications;
+    if (!mounted || services == null || client == null || !client.isActive)
+      return;
+    _accountRefresh ??= AccountServiceRetry(
+      refresh: () async {
+        bool current() => mounted && client.isActive && _features == services;
+        await client.start();
+        if (!current()) return;
+        await client.synchronizePermission();
+        if (!current()) return;
+        await widget.friendRepository.ensureProfile(widget.user);
+        if (!current()) return;
+        final moderator = await services.moderation.isModerator();
+        if (current()) setState(() => _isModerator = moderator);
+      },
+      onFailure: _showAccountRefreshError,
+    );
+    _accountRefresh!.start();
+  }
+
+  void _notificationError(Object error) => _refreshAccountServices();
+
+  void _showAccountRefreshError() {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -357,22 +379,14 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
       _notifications?.invalidateForeground();
     }
     if (state == AppLifecycleState.resumed) {
-      final client = _notifications;
-      if (client != null)
-        unawaited(() async {
-          try {
-            await client.start();
-            await client.synchronizePermission();
-            await _maybeExplainNotifications();
-          } catch (error) {
-            _notificationError(error);
-          }
-        }());
+      _refreshAccountServices();
+      unawaited(_maybeExplainNotifications());
     }
   }
 
   @override
   void dispose() {
+    _accountRefresh?.dispose();
     _notificationBanner.dismiss();
     _features?.offline.removeListener(_notificationConnectionChanged);
     _pageController.dispose();
